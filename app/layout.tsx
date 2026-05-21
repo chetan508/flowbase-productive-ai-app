@@ -3,8 +3,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Premium Startup Boilerplate",
-  description: "Created using the ultimate interactive Next.js stack generator CLI.",
+  title: "Flowbase Productivity Workspace",
+  description: "A calm productivity workspace for pages, boards, tasks, and AI support.",
 };
 
 export default function RootLayout({
