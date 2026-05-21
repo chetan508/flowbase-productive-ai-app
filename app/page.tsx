@@ -1,8 +1,23 @@
+import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import React from 'react';
 
 export default function Home() {
   return (
     <main style={styles.container}>
+      <div style={styles.authControls}>
+        <Show when="signed-out">
+          <SignInButton>
+            <button style={styles.authSecondaryButton}>Sign in</button>
+          </SignInButton>
+          <SignUpButton>
+            <button style={styles.authPrimaryButton}>Sign up</button>
+          </SignUpButton>
+        </Show>
+        <Show when="signed-in">
+          <UserButton />
+        </Show>
+      </div>
+
       <div style={styles.hero}>
         <div style={styles.badge}>Next.js Boilerplate CLI 🚀</div>
         <h1 style={styles.title}>
@@ -69,6 +84,32 @@ const styles: Record<string, React.CSSProperties> = {
     fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
     padding: '2rem',
     boxSizing: 'border-box',
+  },
+  authControls: {
+    position: 'absolute',
+    top: '1.5rem',
+    right: '1.5rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+  },
+  authPrimaryButton: {
+    padding: '0.625rem 1rem',
+    borderRadius: '8px',
+    border: '1px solid #38bdf8',
+    backgroundColor: '#38bdf8',
+    color: '#09090b',
+    cursor: 'pointer',
+    fontWeight: 600,
+  },
+  authSecondaryButton: {
+    padding: '0.625rem 1rem',
+    borderRadius: '8px',
+    border: '1px solid #3f3f46',
+    backgroundColor: '#18181b',
+    color: '#fafafa',
+    cursor: 'pointer',
+    fontWeight: 600,
   },
   hero: {
     textAlign: 'center',
