@@ -58,8 +58,8 @@ const menuGroups: MenuGroup[] = [
     label: "Create",
     items: [
       {
-        label: "Task / Kanban",
-        href: "/",
+        label: "Kanban / Task",
+        href: "/kanban",
         icon: ListTodo,
         iconClassName: "text-amber-500",
       },
