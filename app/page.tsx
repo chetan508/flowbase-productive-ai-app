@@ -1,210 +1,168 @@
-import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import React from 'react';
+import {
+  CalendarDays,
+  FileStack,
+  Search,
+  Sparkles,
+  Workflow
+} from "lucide-react";
+
+import { WorkspaceShell } from "@/components/workspace-shell";
+
+const todayTasks = [
+  "Shape onboarding whiteboard",
+  "Review sprint kanban lanes",
+  "Turn meeting notes into tasks",
+];
+
+const recentSpaces = [
+  { name: "Product launch map", meta: "Whiteboard updated 12m ago" },
+  { name: "Weekly planning notes", meta: "6 linked tasks" },
+  { name: "Research snippets", meta: "Shared with Design" },
+];
+
+const calendarBlocks = [
+  { time: "09:30", title: "Planning sync", tone: "bg-emerald-400" },
+  { time: "12:00", title: "Deep work block", tone: "bg-sky-400" },
+  { time: "16:15", title: "AI template review", tone: "bg-amber-400" },
+];
 
 export default function Home() {
   return (
-    <main style={styles.container}>
-      <div style={styles.authControls}>
-        <Show when="signed-out">
-          <SignInButton>
-            <button style={styles.authSecondaryButton}>Sign in</button>
-          </SignInButton>
-          <SignUpButton>
-            <button style={styles.authPrimaryButton}>Sign up</button>
-          </SignUpButton>
-        </Show>
-        <Show when="signed-in">
-          <UserButton />
-        </Show>
-      </div>
+    <WorkspaceShell>
+          <header className="flex flex-col gap-4 border-b border-border/80 pb-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Thursday focus</p>
+              <h1 className="mt-1 text-2xl font-semibold text-slate-950">Dashboard</h1>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="flex h-10 min-w-0 items-center gap-2 rounded-lg border border-white bg-white/80 px-3 text-sm text-slate-500 shadow-sm shadow-slate-200/60 sm:w-64">
+                <Search aria-hidden="true" className="size-4 shrink-0" />
+                <span className="truncate">Search notes, boards, tasks</span>
+              </div>
+              <button
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+                type="button"
+              >
+                <Sparkles aria-hidden="true" className="size-4 text-amber-300" />
+                Create
+              </button>
+            </div>
+          </header>
 
-      <div style={styles.hero}>
-        <div style={styles.badge}>Next.js Boilerplate CLI 🚀</div>
-        <h1 style={styles.title}>
-          Your Premium SaaS Stack <span style={styles.gradient}>Is Ready</span>
-        </h1>
-        <p style={styles.subtitle}>
-          Congratulations! Your customized Next.js boilerplate has been successfully scaffolded with all your selected databases, components, and authentication configurations.
-        </p>
-        
-        <div style={styles.ctaGroup}>
-          <a href="https://nextjs.org/docs" target="_blank" rel="noopener noreferrer" style={styles.primaryCta}>
-            Read Next.js Docs
-          </a>
-          <a href="#features" style={styles.secondaryCta}>
-            Explore Stack Files
-          </a>
-        </div>
-      </div>
+          <div className="grid gap-4 py-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.8fr)]">
+            <div className="space-y-4">
+              <section className="rounded-lg border border-white/80 bg-white/80 p-4 shadow-sm shadow-slate-200/60">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div className="max-w-xl">
+                    <p className="text-xs font-semibold uppercase text-sky-600">Focus board</p>
+                    <h2 className="mt-2 text-xl font-semibold text-slate-950">
+                      Blend planning, notes, and whiteboards in one calm view.
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Keep the day moving with linked work surfaces, quick AI support, and
+                      a space for ideas before they become tasks.
+                    </p>
+                  </div>
+                  <div className="grid min-w-40 grid-cols-2 gap-2">
+                    <div className="rounded-md bg-sky-50 p-3">
+                      <p className="text-lg font-semibold text-slate-950">12</p>
+                      <p className="text-xs text-slate-500">Open tasks</p>
+                    </div>
+                    <div className="rounded-md bg-rose-50 p-3">
+                      <p className="text-lg font-semibold text-slate-950">3</p>
+                      <p className="text-xs text-slate-500">Boards live</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
 
-      <section id="features" style={styles.grid}>
-        <div style={styles.card}>
-          <div style={styles.icon}>⚡</div>
-          <h3 style={styles.cardTitle}>App Router Ready</h3>
-          <p style={styles.cardText}>Built using modern Next.js 15 App Router with full Server Components and safe SEO presets.</p>
-        </div>
-        
-        <div style={styles.card}>
-          <div style={styles.icon}>🔒</div>
-          <h3 style={styles.cardTitle}>Modular Auth</h3>
-          <p style={styles.cardText}>Pre-configured middleware rules and pages for secure, lightning-fast session validation.</p>
-        </div>
+              <div className="grid gap-4 lg:grid-cols-2">
+                <section className="rounded-lg border border-white/80 bg-white/80 p-4 shadow-sm shadow-slate-200/60">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base font-semibold text-slate-950">Today</h2>
+                    <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">
+                      68% clear
+                    </span>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {todayTasks.map((task, index) => (
+                      <div
+                        className="flex min-h-11 items-center gap-3 rounded-md border border-slate-100 bg-[color:var(--soft-panel)] px-3"
+                        key={task}
+                      >
+                        <span
+                          className={`size-2.5 shrink-0 rounded-full ${
+                            index === 0
+                              ? "bg-sky-400"
+                              : index === 1
+                                ? "bg-emerald-400"
+                                : "bg-rose-400"
+                          }`}
+                        />
+                        <p className="min-w-0 truncate text-sm text-slate-700">{task}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
 
-        <div style={styles.card}>
-          <div style={styles.icon}>🗄️</div>
-          <h3 style={styles.cardTitle}>Database Integration</h3>
-          <p style={styles.cardText}>Configured connections, client instances, schemas, and live migration configurations.</p>
-        </div>
-      </section>
+                <section className="rounded-lg border border-white/80 bg-white/80 p-4 shadow-sm shadow-slate-200/60">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-base font-semibold text-slate-950">Recent spaces</h2>
+                    <FileStack aria-hidden="true" className="size-4 text-indigo-500" />
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {recentSpaces.map((space) => (
+                      <div
+                        className="rounded-md border border-slate-100 bg-[color:var(--soft-panel)] px-3 py-2.5"
+                        key={space.name}
+                      >
+                        <p className="truncate text-sm font-medium text-slate-800">{space.name}</p>
+                        <p className="mt-0.5 truncate text-xs text-slate-500">{space.meta}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            </div>
 
-      <footer style={styles.footer}>
-        Created with <span style={{ color: '#ec4899' }}>♥</span> by{' '}
-        <a
-          href="https://www.youtube.com/@tubeguruji"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: '#71717a', textDecoration: 'underline', transition: 'color 0.2s' }}
-        >
-          Tubeguruji
-        </a>
-      </footer>
-    </main>
+            <div className="space-y-4">
+              <section className="rounded-lg border border-white/80 bg-white/80 p-4 shadow-sm shadow-slate-200/60">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-semibold text-slate-950">Calendar lane</h2>
+                  <CalendarDays aria-hidden="true" className="size-4 text-emerald-500" />
+                </div>
+                <div className="mt-3 space-y-2">
+                  {calendarBlocks.map((block) => (
+                    <div className="flex items-center gap-3 rounded-md bg-[color:var(--soft-panel)] p-3" key={block.title}>
+                      <span className={`h-9 w-1 rounded-full ${block.tone}`} />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-slate-500">{block.time}</p>
+                        <p className="truncate text-sm text-slate-800">{block.title}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-white/80 bg-white/80 p-4 shadow-sm shadow-slate-200/60">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-semibold text-slate-950">Whiteboard pulse</h2>
+                  <Workflow aria-hidden="true" className="size-4 text-cyan-500" />
+                </div>
+                <div className="mt-3 grid min-h-52 grid-cols-2 gap-2 rounded-lg border border-dashed border-slate-200 bg-[linear-gradient(rgba(148,163,184,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.12)_1px,transparent_1px)] bg-[size:24px_24px] p-3">
+                  <div className="self-start rounded-md border border-rose-100 bg-rose-50 p-3 text-sm text-rose-800 shadow-sm">
+                    Capture ideas
+                  </div>
+                  <div className="mt-9 rounded-md border border-sky-100 bg-sky-50 p-3 text-sm text-sky-800 shadow-sm">
+                    Map flows
+                  </div>
+                  <div className="col-span-2 mx-auto rounded-md border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-800 shadow-sm">
+                    Ship the next move
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+    </WorkspaceShell>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#09090b',
-    color: '#fafafa',
-    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
-    padding: '2rem',
-    boxSizing: 'border-box',
-  },
-  authControls: {
-    position: 'absolute',
-    top: '1.5rem',
-    right: '1.5rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.75rem',
-  },
-  authPrimaryButton: {
-    padding: '0.625rem 1rem',
-    borderRadius: '8px',
-    border: '1px solid #38bdf8',
-    backgroundColor: '#38bdf8',
-    color: '#09090b',
-    cursor: 'pointer',
-    fontWeight: 600,
-  },
-  authSecondaryButton: {
-    padding: '0.625rem 1rem',
-    borderRadius: '8px',
-    border: '1px solid #3f3f46',
-    backgroundColor: '#18181b',
-    color: '#fafafa',
-    cursor: 'pointer',
-    fontWeight: 600,
-  },
-  hero: {
-    textAlign: 'center',
-    maxWidth: '800px',
-    marginBottom: '4rem',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  badge: {
-    display: 'inline-block',
-    padding: '0.5rem 1rem',
-    borderRadius: '9999px',
-    backgroundColor: '#27272a',
-    fontSize: '0.875rem',
-    fontWeight: 500,
-    color: '#38bdf8',
-    marginBottom: '1.5rem',
-    border: '1px solid #3f3f46',
-  },
-  title: {
-    fontSize: '3rem',
-    fontWeight: 800,
-    letterSpacing: '-0.025em',
-    lineHeight: 1.2,
-    margin: '0 0 1rem 0',
-  },
-  gradient: {
-    background: 'linear-gradient(to right, #38bdf8, #818cf8, #c084fc)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-  },
-  subtitle: {
-    fontSize: '1.125rem',
-    color: '#a1a1aa',
-    lineHeight: 1.6,
-    margin: '0 0 2rem 0',
-    maxWidth: '600px',
-  },
-  ctaGroup: {
-    display: 'flex',
-    gap: '1rem',
-  },
-  primaryCta: {
-    padding: '0.75rem 1.5rem',
-    borderRadius: '8px',
-    backgroundColor: '#38bdf8',
-    color: '#09090b',
-    fontWeight: 600,
-    textDecoration: 'none',
-    transition: 'opacity 0.2s',
-  },
-  secondaryCta: {
-    padding: '0.75rem 1.5rem',
-    borderRadius: '8px',
-    backgroundColor: 'transparent',
-    color: '#fafafa',
-    fontWeight: 600,
-    textDecoration: 'none',
-    border: '1px solid #3f3f46',
-    transition: 'background-color 0.2s',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-    gap: '2rem',
-    width: '100%',
-    maxWidth: '1000px',
-    marginBottom: '4rem',
-  },
-  card: {
-    backgroundColor: '#18181b',
-    border: '1px solid #27272a',
-    borderRadius: '12px',
-    padding: '1.5rem',
-    transition: 'transform 0.2s, border-color 0.2s',
-  },
-  icon: {
-    fontSize: '2rem',
-    marginBottom: '1rem',
-  },
-  cardTitle: {
-    fontSize: '1.25rem',
-    fontWeight: 600,
-    margin: '0 0 0.5rem 0',
-  },
-  cardText: {
-    fontSize: '0.875rem',
-    color: '#a1a1aa',
-    lineHeight: 1.5,
-    margin: 0,
-  },
-  footer: {
-    fontSize: '0.875rem',
-    color: '#71717a',
-    marginTop: 'auto',
-  },
-};

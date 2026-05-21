@@ -55,72 +55,52 @@
 }
 
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(240 10% 3.9%);
+  --background: hsl(195 71% 97%);
+  --foreground: hsl(222 32% 14%);
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(240 10% 3.9%);
+  --card-foreground: hsl(222 32% 14%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(240 10% 3.9%);
-  --primary: hsl(240 5.9% 10%);
-  --primary-foreground: hsl(0 0% 98%);
-  --secondary: hsl(240 4.8% 95.9%);
-  --secondary-foreground: hsl(240 5.9% 10%);
-  --muted: hsl(240 4.8% 95.9%);
-  --muted-foreground: hsl(240 3.8% 46.1%);
-  --accent: hsl(240 4.8% 95.9%);
-  --accent-foreground: hsl(240 5.9% 10%);
+  --popover-foreground: hsl(222 32% 14%);
+  --primary: hsl(222 45% 16%);
+  --primary-foreground: hsl(203 52% 98%);
+  --secondary: hsl(164 57% 92%);
+  --secondary-foreground: hsl(222 32% 18%);
+  --muted: hsl(201 48% 93%);
+  --muted-foreground: hsl(218 14% 43%);
+  --accent: hsl(187 86% 89%);
+  --accent-foreground: hsl(222 32% 18%);
   --destructive: hsl(0 84.2% 60.2%);
   --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 5.9% 90%);
-  --input: hsl(240 5.9% 90%);
-  --ring: hsl(240 10% 3.9%);
+  --border: hsl(196 41% 86%);
+  --input: hsl(196 41% 86%);
+  --ring: hsl(188 92% 45%);
   --radius: 0.5rem;
+  --sidebar: hsl(188 76% 94% / 0.92);
+  --soft-panel: hsl(190 64% 98%);
 }
 
 .dark {
-  --background: hsl(240 10% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(240 10% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 98%);
-  --primary-foreground: hsl(240 5.9% 10%);
-  --secondary: hsl(240 3.7% 15.9%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(240 3.7% 15.9%);
-  --muted-foreground: hsl(240 5% 64.9%);
-  --accent: hsl(240 3.7% 15.9%);
-  --accent-foreground: hsl(0 0% 98%);
+  --background: hsl(222 29% 10%);
+  --foreground: hsl(204 33% 96%);
+  --card: hsl(221 28% 14%);
+  --card-foreground: hsl(204 33% 96%);
+  --popover: hsl(221 28% 14%);
+  --popover-foreground: hsl(204 33% 96%);
+  --primary: hsl(197 89% 72%);
+  --primary-foreground: hsl(222 35% 10%);
+  --secondary: hsl(170 26% 20%);
+  --secondary-foreground: hsl(204 33% 96%);
+  --muted: hsl(220 20% 20%);
+  --muted-foreground: hsl(215 18% 72%);
+  --accent: hsl(198 35% 24%);
+  --accent-foreground: hsl(204 33% 96%);
   --destructive: hsl(0 62.8% 30.6%);
   --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 3.7% 15.9%);
-  --input: hsl(240 3.7% 15.9%);
-  --ring: hsl(240 4.9% 83.9%);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: hsl(240 10% 3.9%);
-    --foreground: hsl(0 0% 98%);
-    --card: hsl(240 10% 3.9%);
-    --card-foreground: hsl(0 0% 98%);
-    --popover: hsl(240 10% 3.9%);
-    --popover-foreground: hsl(0 0% 98%);
-    --primary: hsl(0 0% 98%);
-    --primary-foreground: hsl(240 5.9% 10%);
-    --secondary: hsl(240 3.7% 15.9%);
-    --secondary-foreground: hsl(0 0% 98%);
-    --muted: hsl(240 3.7% 15.9%);
-    --muted-foreground: hsl(240 5% 64.9%);
-    --accent: hsl(240 3.7% 15.9%);
-    --accent-foreground: hsl(0 0% 98%);
-    --destructive: hsl(0 62.8% 30.6%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(240 3.7% 15.9%);
-    --input: hsl(240 3.7% 15.9%);
-    --ring: hsl(240 4.9% 83.9%);
-  }
+  --border: hsl(219 20% 24%);
+  --input: hsl(219 20% 24%);
+  --ring: hsl(197 89% 72%);
+  --sidebar: hsl(221 28% 13% / 0.92);
+  --soft-panel: hsl(220 24% 17%);
 }
 
 @layer base {
@@ -129,5 +109,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family:
+      Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
   }
 }
