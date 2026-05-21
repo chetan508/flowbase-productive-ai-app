@@ -682,26 +682,40 @@ function CalendarItemChip({
 
   return (
     <article
-      className={`min-w-0 rounded-md border px-1.5 py-1 text-left ${tone}`}
+      className={`min-w-0 cursor-pointer rounded-md border px-1.5 py-1 text-left ${tone}`}
       draggable
+      onClick={() => onEdit(item)}
       onDragStart={(event) => {
         event.dataTransfer.setData("text/calendar-item-id", String(item.id));
         event.dataTransfer.effectAllowed = "move";
       }}
     >
-      <div className="flex min-w-0 items-start gap-1">
+      <button
+        aria-label={`Open ${item.title}`}
+        className="flex w-full min-w-0 items-start gap-1 rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+        onClick={(event) => {
+          event.stopPropagation();
+          onEdit(item);
+        }}
+        type="button"
+      >
         {item.kind === "reminder" ? (
           <BellRing aria-hidden="true" className="mt-0.5 size-3 shrink-0" />
         ) : (
           <span className={`mt-1 size-2 shrink-0 rounded-full ${category.dotClassName}`} />
         )}
-        <p className="min-w-0 flex-1 truncate text-[11px] font-semibold sm:text-xs">{item.title}</p>
-      </div>
+        <span className="min-w-0 flex-1 truncate text-[11px] font-semibold sm:text-xs">
+          {item.title}
+        </span>
+      </button>
       <div className="mt-1 flex justify-end gap-1 opacity-100 sm:opacity-0 sm:transition sm:group-hover:opacity-100">
         <button
           aria-label={`Edit ${item.title}`}
           className="grid size-5 place-items-center rounded text-current transition hover:bg-white/70"
-          onClick={() => onEdit(item)}
+          onClick={(event) => {
+            event.stopPropagation();
+            onEdit(item);
+          }}
           type="button"
         >
           <Pencil aria-hidden="true" className="size-3" />
@@ -709,7 +723,10 @@ function CalendarItemChip({
         <button
           aria-label={`Delete ${item.title}`}
           className="grid size-5 place-items-center rounded text-current transition hover:bg-white/70"
-          onClick={() => onDelete(item.id)}
+          onClick={(event) => {
+            event.stopPropagation();
+            onDelete(item.id);
+          }}
           type="button"
         >
           <Trash2 aria-hidden="true" className="size-3" />
