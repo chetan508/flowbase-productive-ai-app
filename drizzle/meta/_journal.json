@@ -15,6 +15,13 @@
       "when": 1779339591368,
       "tag": "0001_organic_silver_surfer",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779418304052,
+      "tag": "0002_clear_rhino",
+      "breakpoints": true
     }
   ]
 }
