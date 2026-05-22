@@ -121,6 +121,65 @@ export const whiteboards = pgTable("whiteboards", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const spaces = pgTable("spaces", {
+  id: serial("id").primaryKey(),
+  ownerId: integer("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  description: text("description").notNull().default(""),
+  color: text("color").notNull(),
+  favorite: integer("favorite").notNull().default(0),
+  archived: integer("archived").notNull().default(0),
+  lastOpenedAt: timestamp("last_opened_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const spaceMembers = pgTable(
+  "space_members",
+  {
+    id: serial("id").primaryKey(),
+    spaceId: integer("space_id")
+      .notNull()
+      .references(() => spaces.id, { onDelete: "cascade" }),
+    userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+    email: text("email").notNull(),
+    role: text("role").notNull().default("editor"),
+    status: text("status").notNull().default("active"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    spaceEmailUnique: uniqueIndex("space_members_space_email_unique").on(
+      table.spaceId,
+      table.email,
+    ),
+  }),
+);
+
+export const pages = pgTable("pages", {
+  id: serial("id").primaryKey(),
+  spaceId: integer("space_id")
+    .notNull()
+    .references(() => spaces.id, { onDelete: "cascade" }),
+  ownerId: integer("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  emoji: text("emoji").notNull().default("doc"),
+  template: text("template").notNull().default("Blank Page"),
+  type: text("type").notNull().default("Document"),
+  description: text("description").notNull().default(""),
+  favorite: integer("favorite").notNull().default(0),
+  archived: integer("archived").notNull().default(0),
+  commentsCount: integer("comments_count").notNull().default(0),
+  linkedTasksCount: integer("linked_tasks_count").notNull().default(0),
+  updatedBy: text("updated_by").notNull().default("You"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type CalendarItem = typeof calendarItems.$inferSelect;
@@ -135,3 +194,9 @@ export type KanbanTask = typeof kanbanTasks.$inferSelect;
 export type NewKanbanTask = typeof kanbanTasks.$inferInsert;
 export type Whiteboard = typeof whiteboards.$inferSelect;
 export type NewWhiteboard = typeof whiteboards.$inferInsert;
+export type Space = typeof spaces.$inferSelect;
+export type NewSpace = typeof spaces.$inferInsert;
+export type SpaceMember = typeof spaceMembers.$inferSelect;
+export type NewSpaceMember = typeof spaceMembers.$inferInsert;
+export type Page = typeof pages.$inferSelect;
+export type NewPage = typeof pages.$inferInsert;

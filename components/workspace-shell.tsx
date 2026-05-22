@@ -77,7 +77,7 @@ const menuGroups: MenuGroup[] = [
       },
       {
         label: "Pages / Spaces",
-        href: "/",
+        href: "/spaces",
         icon: FileStack,
         iconClassName: "text-indigo-500",
       },
