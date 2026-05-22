@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@liveblocks/react-ui/styles.css";
+@import "../node_modules/@excalidraw/excalidraw/dist/prod/index.css";
 
 @theme inline {
   --color-background: var(--background);
@@ -123,6 +124,10 @@
 
   .bubble-button {
     @apply grid size-8 place-items-center rounded-md text-slate-600 transition hover:bg-slate-100 hover:text-slate-950;
+  }
+
+  .whiteboard-action {
+    @apply inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-slate-200 bg-white/90 px-2.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:opacity-60;
   }
 
   .notes-prose {

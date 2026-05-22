@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.2.3",
+    "@excalidraw/excalidraw": "^0.18.1",
     "@liveblocks/client": "^3.19.2",
     "@liveblocks/node": "^3.19.2",
     "@liveblocks/react": "^3.19.2",

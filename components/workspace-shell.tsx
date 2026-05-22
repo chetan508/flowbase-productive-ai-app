@@ -71,7 +71,7 @@ const menuGroups: MenuGroup[] = [
       },
       {
         label: "Whiteboard",
-        href: "/",
+        href: "/whiteboard",
         icon: Workflow,
         iconClassName: "text-cyan-500",
       },

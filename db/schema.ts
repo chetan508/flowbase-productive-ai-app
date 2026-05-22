@@ -1,6 +1,7 @@
 import {
   date,
   integer,
+  jsonb,
   pgTable,
   serial,
   text,
@@ -102,6 +103,24 @@ export const kanbanTasks = pgTable("kanban_tasks", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export type WhiteboardScene = {
+  elements: unknown[];
+  appState: Record<string, unknown>;
+  files: Record<string, unknown>;
+};
+
+export const whiteboards = pgTable("whiteboards", {
+  id: serial("id").primaryKey(),
+  ownerId: integer("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  color: text("color").notNull(),
+  scene: jsonb("scene").$type<WhiteboardScene>().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type CalendarItem = typeof calendarItems.$inferSelect;
@@ -114,3 +133,5 @@ export type KanbanColumn = typeof kanbanColumns.$inferSelect;
 export type NewKanbanColumn = typeof kanbanColumns.$inferInsert;
 export type KanbanTask = typeof kanbanTasks.$inferSelect;
 export type NewKanbanTask = typeof kanbanTasks.$inferInsert;
+export type Whiteboard = typeof whiteboards.$inferSelect;
+export type NewWhiteboard = typeof whiteboards.$inferInsert;
