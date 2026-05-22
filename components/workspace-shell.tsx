@@ -65,7 +65,7 @@ const menuGroups: MenuGroup[] = [
       },
       {
         label: "Notes",
-        href: "/",
+        href: "/notes",
         icon: NotebookPen,
         iconClassName: "text-rose-500",
       },
