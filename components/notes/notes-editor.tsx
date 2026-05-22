@@ -16,15 +16,18 @@ import {
   LinkIcon,
   List,
   ListOrdered,
+  Mic,
   Minus,
   Pilcrow,
   Quote,
   Sparkles,
+  Square,
   UnderlineIcon,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { NotePage } from "@/components/notes/notes-workspace";
+import { useAssemblyAIStreaming } from "@/hooks/use-assemblyai-streaming";
 
 type NotesEditorProps = {
   note: NotePage;
@@ -78,10 +81,16 @@ function countWords(text: string) {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
 
+function isWordLike(value: string) {
+  return /[A-Za-z0-9]$/.test(value);
+}
+
 export function NotesEditor({ note, onChange }: NotesEditorProps) {
   const [saveState, setSaveState] = useState<"saved" | "saving">("saved");
   const [slashOpen, setSlashOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
+  const [toast, setToast] = useState("");
+  const voiceInsertPositionRef = useRef<number | null>(null);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -115,6 +124,50 @@ export function NotesEditor({ note, onChange }: NotesEditorProps) {
       );
       setSlashOpen(textBeforeCursor === "/");
     },
+    onSelectionUpdate: ({ editor: currentEditor }) => {
+      if (currentEditor.isFocused) {
+        voiceInsertPositionRef.current = currentEditor.state.selection.to;
+      }
+    },
+  });
+
+  const insertTranscriptChunk = useCallback(
+    (chunk: string) => {
+      if (!editor) return;
+      const trimmedChunk = chunk.replace(/\s+/g, " ").trim();
+      if (!trimmedChunk) return;
+
+      const docSize = editor.state.doc.content.size;
+      const savedPosition = voiceInsertPositionRef.current;
+      const position = editor.isFocused
+        ? editor.state.selection.to
+        : typeof savedPosition === "number"
+          ? Math.min(savedPosition, docSize)
+          : docSize;
+      const before = position > 1 ? editor.state.doc.textBetween(position - 1, position) : "";
+      const after = position < docSize ? editor.state.doc.textBetween(position, position + 1) : "";
+      const leadingSpace = before && isWordLike(before) && isWordLike(trimmedChunk.charAt(0)) ? " " : "";
+      const trailingSpace = after && isWordLike(after) && isWordLike(trimmedChunk.charAt(trimmedChunk.length - 1)) ? " " : "";
+      const text = `${leadingSpace}${trimmedChunk}${trailingSpace}`;
+
+      editor.chain().focus().insertContentAt(position, text).run();
+      voiceInsertPositionRef.current = position + text.length;
+    },
+    [editor],
+  );
+
+  const showToast = useCallback((message: string) => {
+    setToast(message);
+  }, []);
+
+  const speech = useAssemblyAIStreaming({
+    onFinalTranscript: insertTranscriptChunk,
+    onStop: (reason) => {
+      if (reason === "limit") {
+        showToast("Recording stopped after 2 minutes.");
+      }
+    },
+    onError: showToast,
   });
 
   useEffect(() => {
@@ -124,6 +177,7 @@ export function NotesEditor({ note, onChange }: NotesEditorProps) {
     }
     setSlashOpen(false);
     setAiOpen(false);
+    voiceInsertPositionRef.current = null;
   }, [editor, note.id]);
 
   useEffect(() => {
@@ -132,7 +186,15 @@ export function NotesEditor({ note, onChange }: NotesEditorProps) {
     return () => window.clearTimeout(timeout);
   }, [saveState, note.content]);
 
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = window.setTimeout(() => setToast(""), 4200);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
   const wordCount = useMemo(() => countWords(editor?.getText() ?? ""), [editor, note.content]);
+  const recordingBusy = speech.status === "connecting" || speech.status === "recording" || speech.status === "stopping";
+  const recordingLabel = speech.status === "connecting" ? "Connecting" : speech.status === "stopping" ? "Stopping" : "Speak to Note";
 
   function runSlashCommand(action: (typeof slashCommands)[number]["action"]) {
     if (!editor) return;
@@ -171,7 +233,35 @@ export function NotesEditor({ note, onChange }: NotesEditorProps) {
             onChange={(event) => onChange({ title: event.target.value || "Untitled note" })}
             value={note.title}
           />
-          <div className="flex shrink-0 items-center gap-3 text-xs text-slate-500">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 text-xs text-slate-500">
+            <button
+              className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${
+                speech.isRecording
+                  ? "border-rose-200 bg-rose-50 text-rose-700"
+                  : "border-cyan-100 bg-cyan-50 text-cyan-800 hover:bg-cyan-100 disabled:cursor-not-allowed disabled:opacity-70"
+              }`}
+              disabled={recordingBusy}
+              onClick={() => void speech.start()}
+              onMouseDown={(event) => event.preventDefault()}
+              type="button"
+            >
+              <span className={speech.isRecording ? "relative flex size-4 items-center justify-center" : ""}>
+                {speech.isRecording && <span className="absolute inline-flex size-4 animate-ping rounded-full bg-rose-300 opacity-75" />}
+                <Mic aria-hidden="true" className="relative size-4" />
+              </span>
+              {recordingLabel}
+            </button>
+            {speech.isRecording && (
+              <button
+                className="inline-flex h-8 items-center gap-1.5 rounded-md bg-slate-950 px-2.5 font-medium text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                onClick={() => void speech.stop()}
+                onMouseDown={(event) => event.preventDefault()}
+                type="button"
+              >
+                <Square aria-hidden="true" className="size-3.5 fill-current" />
+                Stop Recording
+              </button>
+            )}
             <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 font-medium text-emerald-700">
               <CheckCircle2 aria-hidden="true" className="size-3.5" />
               {saveState === "saving" ? "Saving" : "Saved"}
@@ -179,6 +269,21 @@ export function NotesEditor({ note, onChange }: NotesEditorProps) {
             <span>{wordCount} words</span>
           </div>
         </div>
+        {(speech.livePreview || toast || speech.error) && (
+          <div className="mt-3 flex flex-col gap-2" aria-live="polite">
+            {speech.livePreview && (
+              <div className="rounded-md border border-cyan-100 bg-cyan-50/70 px-3 py-2 text-sm text-slate-700">
+                <span className="mr-2 font-medium text-cyan-800">Listening</span>
+                {speech.livePreview}
+              </div>
+            )}
+            {(toast || speech.error) && (
+              <div className="w-fit rounded-md border border-amber-100 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 shadow-sm shadow-amber-100/60">
+                {toast || speech.error}
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       <div className="relative min-h-0 flex-1 overflow-y-auto">
