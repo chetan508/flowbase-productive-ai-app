@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ElementType, type ReactNode } from "react";
+import { useEffect, useState, type ElementType, type ReactNode } from "react";
 import {
   Bot,
   CalendarDays,
@@ -17,6 +17,9 @@ import {
   WandSparkles,
   Workflow,
 } from "lucide-react";
+
+import { getSidebarGeneratedAppsAction, type GeneratedAppRecord } from "@/app/ai-template-builder/actions";
+import { GeneratedAppIcon } from "@/components/generated-app-icon";
 
 type MenuItem = {
   label: string;
@@ -88,7 +91,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       {
         label: "AI Template Builder",
-        href: "/",
+        href: "/ai-template-builder",
         icon: WandSparkles,
         iconClassName: "text-violet-500",
       },
@@ -125,7 +128,7 @@ function SidebarItem({
     <Link
       aria-current={active ? "page" : undefined}
       aria-label={item.label}
-      className={`group flex h-8 w-full items-center rounded-md border text-[13px] transition ${
+      className={`group flex h-7 w-full items-center rounded-md border text-[12px] transition ${
         collapsed ? "justify-center px-0" : "justify-center px-0 sm:justify-start sm:gap-2 sm:px-2"
       } ${
         active
@@ -144,8 +147,62 @@ function SidebarItem({
   );
 }
 
+function GeneratedSidebarItem({
+  app,
+  collapsed,
+}: {
+  app: GeneratedAppRecord;
+  collapsed: boolean;
+}) {
+  const pathname = usePathname();
+  const href = `/ai-template-builder/${app.id}`;
+  const active = pathname === href;
+
+  return (
+    <Link
+      aria-current={active ? "page" : undefined}
+      aria-label={app.appName}
+      className={`group flex h-7 w-full items-center rounded-md border text-[12px] transition ${
+        collapsed ? "justify-center px-0" : "justify-center px-0 sm:justify-start sm:gap-2 sm:px-2"
+      } ${
+        active
+          ? "border-sky-200 bg-white text-slate-950 shadow-sm shadow-sky-100/80"
+          : "border-transparent text-slate-600 hover:border-white/70 hover:bg-white/75 hover:text-slate-950"
+      }`}
+      href={href}
+      title={app.appName}
+    >
+      <span className="grid size-4 shrink-0 place-items-center rounded" style={{ color: app.color }}>
+        <GeneratedAppIcon className="size-3.5 transition group-hover:scale-105" name={app.icon} />
+      </span>
+      {!collapsed && <span className="hidden truncate sm:block">{app.appName}</span>}
+    </Link>
+  );
+}
+
 export function WorkspaceShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [generatedApps, setGeneratedApps] = useState<GeneratedAppRecord[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadGeneratedApps() {
+      try {
+        const apps = await getSidebarGeneratedAppsAction();
+        if (active) setGeneratedApps(apps);
+      } catch {
+        if (active) setGeneratedApps([]);
+      }
+    }
+
+    void loadGeneratedApps();
+    window.addEventListener("generated-apps-sidebar-changed", loadGeneratedApps);
+    return () => {
+      active = false;
+      window.removeEventListener("generated-apps-sidebar-changed", loadGeneratedApps);
+    };
+  }, []);
 
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
@@ -193,11 +250,11 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
             )}
           </button>
 
-          <nav aria-label="Primary" className="mt-1.5 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-2">
+          <nav aria-label="Primary" className="mt-1.5 flex min-h-0 flex-1 flex-col gap-1 overflow-hidden pb-1">
             {menuGroups.map((group) => (
               <section aria-label={group.label} key={group.label}>
                 {!collapsed && (
-                  <p className="hidden px-2 pb-0.5 text-[9px] font-bold uppercase text-cyan-700/70 sm:block">
+                  <p className="hidden px-2 text-[8px] font-bold uppercase leading-4 text-cyan-700/70 sm:block">
                     {group.label}
                   </p>
                 )}
@@ -208,6 +265,20 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
                 </div>
               </section>
             ))}
+            {generatedApps.length > 0 && (
+              <section aria-label="Generated Apps">
+                {!collapsed && (
+                  <p className="hidden px-2 text-[8px] font-bold uppercase leading-4 text-cyan-700/70 sm:block">
+                    Generated Apps
+                  </p>
+                )}
+                <div className="space-y-0.5">
+                  {generatedApps.map((app) => (
+                    <GeneratedSidebarItem app={app} collapsed={collapsed} key={app.id} />
+                  ))}
+                </div>
+              </section>
+            )}
           </nav>
 
           <footer className="space-y-1 border-t border-cyan-100/90 pt-2">
