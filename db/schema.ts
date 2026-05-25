@@ -109,6 +109,50 @@ export type WhiteboardScene = {
   files: Record<string, unknown>;
 };
 
+export type GeneratedAppField = {
+  label: string;
+  type: "text" | "number" | "date" | "select" | "checkbox" | "textarea";
+  placeholder?: string;
+  options?: string[];
+};
+
+export type GeneratedAppComponent = {
+  type:
+    | "stats"
+    | "list"
+    | "table"
+    | "form"
+    | "progress"
+    | "checklist"
+    | "buttons"
+    | "tags"
+    | "chart";
+  title?: string;
+  description?: string;
+  fields?: GeneratedAppField[];
+  items?: Array<Record<string, unknown>>;
+  actions?: string[];
+};
+
+export type GeneratedAppSection = {
+  title: string;
+  description?: string;
+  components: GeneratedAppComponent[];
+};
+
+export type GeneratedAppTemplate = {
+  appName: string;
+  description: string;
+  icon: string;
+  color: string;
+  layout: "single-page";
+  sections: GeneratedAppSection[];
+  components: GeneratedAppComponent[];
+  fields: GeneratedAppField[];
+  actions: string[];
+  sampleData: Array<Record<string, unknown>>;
+};
+
 export const whiteboards = pgTable("whiteboards", {
   id: serial("id").primaryKey(),
   ownerId: integer("owner_id")
@@ -117,6 +161,22 @@ export const whiteboards = pgTable("whiteboards", {
   name: text("name").notNull(),
   color: text("color").notNull(),
   scene: jsonb("scene").$type<WhiteboardScene>().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const generatedApps = pgTable("generated_apps", {
+  id: serial("id").primaryKey(),
+  ownerId: integer("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  appName: text("app_name").notNull(),
+  description: text("description").notNull().default(""),
+  icon: text("icon").notNull().default("Sparkles"),
+  color: text("color").notNull().default("#8b5cf6"),
+  layout: text("layout").notNull().default("single-page"),
+  template: jsonb("template").$type<GeneratedAppTemplate>().notNull(),
+  addedToSidebar: integer("added_to_sidebar").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -194,6 +254,8 @@ export type KanbanTask = typeof kanbanTasks.$inferSelect;
 export type NewKanbanTask = typeof kanbanTasks.$inferInsert;
 export type Whiteboard = typeof whiteboards.$inferSelect;
 export type NewWhiteboard = typeof whiteboards.$inferInsert;
+export type GeneratedApp = typeof generatedApps.$inferSelect;
+export type NewGeneratedApp = typeof generatedApps.$inferInsert;
 export type Space = typeof spaces.$inferSelect;
 export type NewSpace = typeof spaces.$inferInsert;
 export type SpaceMember = typeof spaceMembers.$inferSelect;
