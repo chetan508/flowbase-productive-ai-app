@@ -102,7 +102,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       {
         label: "Settings",
-        href: "/",
+        href: "/settings",
         icon: Settings2,
         iconClassName: "text-teal-500",
       },

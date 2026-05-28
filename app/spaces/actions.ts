@@ -4,6 +4,7 @@ import { and, desc, eq, inArray, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { db, pages, spaceMembers, spaces, users, type Page, type Space, type SpaceMember, type User } from "@/db";
+import { assertWithinFreeLimit, getCurrentPlanTier } from "@/lib/entitlements";
 import { colorForIdentity, normalizeEmail } from "@/lib/identity";
 import { requireWorkspaceUser } from "@/lib/workspace-user";
 
@@ -387,6 +388,7 @@ export async function getPagesForSpaceAction(spaceId: number): Promise<PageRecor
 
 export async function createSpaceAction(input: { name: string; description?: string; color?: string }) {
   const user = await requireWorkspaceUser();
+  await assertWithinFreeLimit(user, "spaces", await getCurrentPlanTier());
   const [space] = await db
     .insert(spaces)
     .values({
@@ -427,6 +429,7 @@ export async function updateSpaceAction(spaceId: number, input: Partial<{ name: 
 
 export async function duplicateSpaceAction(spaceId: number) {
   const user = await requireWorkspaceUser();
+  await assertWithinFreeLimit(user, "spaces", await getCurrentPlanTier());
   const source = await requireSpaceAccess(spaceId, user);
   const sourcePages = await db.query.pages.findMany({ where: eq(pages.spaceId, source.id) });
 

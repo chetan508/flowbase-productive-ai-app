@@ -3,7 +3,7 @@
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { calendarItems, db } from "@/db";
+import { calendarItems, db, userCategories } from "@/db";
 import {
   isTaskCategoryKey,
   toCalendarItemRecord,
@@ -12,6 +12,7 @@ import {
   type TaskCategoryKey,
 } from "@/lib/calendar";
 import { requireCalendarUser } from "@/lib/calendar-user";
+import { ensureUserCategories } from "@/lib/settings";
 
 type CalendarItemInput = {
   title: string;
@@ -53,16 +54,29 @@ function cleanDate(value?: string | null) {
   return value;
 }
 
-function cleanCategory(kind: CalendarItemKind, value?: TaskCategoryKey | null) {
-  if (kind === "reminder") {
-    return null;
+async function cleanCategory(userId: number, kind: CalendarItemKind, value?: TaskCategoryKey | null) {
+  await ensureUserCategories(userId);
+  const scope = kind === "reminder" ? "reminders" : "tasks";
+  const categories = await db.query.userCategories.findMany({
+    where: eq(userCategories.userId, userId),
+  });
+  const scopedCategories = categories.filter((category) => category.scope === scope);
+  const fallback = scopedCategories[0]?.id ? String(scopedCategories[0].id) : null;
+
+  if (!value && fallback) {
+    return fallback;
   }
 
   if (!value || !isTaskCategoryKey(value)) {
-    throw new Error("Tasks need a valid category.");
+    throw new Error("Choose a valid category.");
   }
 
-  return value;
+  const category = scopedCategories.find((item) => String(item.id) === String(value));
+  if (!category) {
+    throw new Error("Choose a valid category.");
+  }
+
+  return String(category.id);
 }
 
 async function ownedItem(id: number, userId: number) {
@@ -88,7 +102,7 @@ export async function createCalendarItemAction(
       kind: input.kind,
       title: cleanTitle(input.title),
       notes: cleanNotes(input.notes),
-      categoryKey: cleanCategory(input.kind, input.categoryKey),
+      categoryKey: await cleanCategory(user.id, input.kind, input.categoryKey),
       scheduledDate,
     })
     .returning();
@@ -130,7 +144,7 @@ export async function updateCalendarItemAction(
       categoryKey:
         input.categoryKey === undefined && kind === currentItem.kind
           ? currentItem.categoryKey
-          : cleanCategory(kind, input.categoryKey),
+          : await cleanCategory(user.id, kind, input.categoryKey),
       scheduledDate,
       updatedAt: new Date(),
     })
