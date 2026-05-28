@@ -17,6 +17,67 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export type UserAiSettings = {
+  model: string;
+  behavior: string;
+  tone: string;
+  features: {
+    refine: boolean;
+    assistant: boolean;
+    templateBuilder: boolean;
+    summaries: boolean;
+  };
+};
+
+export type UserNotificationSettings = {
+  email: boolean;
+  desktop: boolean;
+  reminders: boolean;
+  digest: boolean;
+};
+
+export type UserPrivacySettings = {
+  twoFactorReminder: boolean;
+  privateProfile: boolean;
+  dataSharing: boolean;
+};
+
+export const userSettings = pgTable("user_settings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  displayName: text("display_name"),
+  avatarUrl: text("avatar_url"),
+  theme: text("theme").notNull().default("system"),
+  defaultCalendarView: text("default_calendar_view").notNull().default("month"),
+  defaultTaskPriority: text("default_task_priority").notNull().default("Medium"),
+  autoSave: integer("auto_save").notNull().default(1),
+  aiSettings: jsonb("ai_settings").$type<UserAiSettings>().notNull(),
+  notificationSettings: jsonb("notification_settings")
+    .$type<UserNotificationSettings>()
+    .notNull(),
+  privacySettings: jsonb("privacy_settings").$type<UserPrivacySettings>().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  userSettingsUserUnique: uniqueIndex("user_settings_user_unique").on(table.userId),
+}));
+
+export const userCategories = pgTable("user_categories", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  scope: text("scope").notNull(),
+  name: text("name").notNull(),
+  color: text("color").notNull(),
+  icon: text("icon").notNull().default("Tag"),
+  position: integer("position").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const posts = pgTable("posts", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
@@ -242,6 +303,10 @@ export const pages = pgTable("pages", {
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type UserSettings = typeof userSettings.$inferSelect;
+export type NewUserSettings = typeof userSettings.$inferInsert;
+export type UserCategory = typeof userCategories.$inferSelect;
+export type NewUserCategory = typeof userCategories.$inferInsert;
 export type CalendarItem = typeof calendarItems.$inferSelect;
 export type NewCalendarItem = typeof calendarItems.$inferInsert;
 export type KanbanBoard = typeof kanbanBoards.$inferSelect;

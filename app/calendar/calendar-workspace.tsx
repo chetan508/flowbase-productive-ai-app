@@ -19,7 +19,7 @@ import {
   updateCalendarItemAction,
 } from "@/app/calendar/actions";
 import {
-  taskCategories,
+  type CalendarCategory,
   type CalendarItemKind,
   type CalendarItemRecord,
   type TaskCategoryKey,
@@ -34,6 +34,15 @@ type ComposerState = {
 
 const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const reminderTone = "border-violet-200 bg-violet-100 text-violet-800";
+const fallbackCategory: CalendarCategory = {
+  key: "fallback",
+  scope: "tasks",
+  label: "General",
+  color: "#38bdf8",
+  icon: "Tag",
+  chipClassName: "border-sky-200 bg-sky-100 text-sky-800",
+  dotClassName: "bg-sky-500",
+};
 
 function dateKey(date: Date) {
   const year = date.getFullYear();
@@ -74,8 +83,8 @@ function weekRange(anchor: Date) {
   return Array.from({ length: 7 }, (_, index) => addDays(gridStart, index));
 }
 
-function categoryFor(key: TaskCategoryKey | null) {
-  return taskCategories.find((category) => category.key === key) ?? taskCategories[0];
+function categoryFor(categories: CalendarCategory[], key: TaskCategoryKey | null) {
+  return categories.find((category) => category.key === key) ?? categories[0] ?? fallbackCategory;
 }
 
 function sortItems(items: CalendarItemRecord[]) {
@@ -92,12 +101,15 @@ function errorMessage(error: unknown) {
 }
 
 export function CalendarWorkspace({
+  initialCategories,
   initialItems,
 }: {
+  initialCategories: CalendarCategory[];
   initialItems: CalendarItemRecord[];
 }) {
   const today = useMemo(() => new Date(), []);
   const [items, setItems] = useState(() => sortItems(initialItems));
+  const [categories] = useState(initialCategories);
   const [view, setView] = useState<CalendarView>("month");
   const [selectedDate, setSelectedDate] = useState(() => dateKey(today));
   const [anchor, setAnchor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
@@ -122,6 +134,10 @@ export function CalendarWorkspace({
           year: "numeric",
         })}`;
   const drafts = items.filter((item) => item.kind === "task" && !item.scheduledDate);
+  const taskCategories = categories.filter((category) => category.scope === "tasks");
+  const reminderCategories = categories.filter((category) => category.scope === "reminders");
+  const defaultTaskCategory = taskCategories[0]?.key ?? categories[0]?.key ?? "";
+  const defaultReminderCategory = reminderCategories[0]?.key ?? defaultTaskCategory;
   const scheduledByDate = items.reduce<Record<string, CalendarItemRecord[]>>((dates, item) => {
     if (item.scheduledDate) {
       dates[item.scheduledDate] = [...(dates[item.scheduledDate] ?? []), item];
@@ -169,7 +185,7 @@ export function CalendarWorkspace({
           kind: "task",
           title: String(formData.get("draftTitle") ?? ""),
           notes: String(formData.get("draftNotes") ?? ""),
-          categoryKey: String(formData.get("draftCategory") ?? "work") as TaskCategoryKey,
+          categoryKey: String(formData.get("draftCategory") ?? defaultTaskCategory) as TaskCategoryKey,
           scheduledDate: null,
         });
 
@@ -193,8 +209,8 @@ export function CalendarWorkspace({
       notes: String(formData.get("notes") ?? ""),
       categoryKey:
         kind === "task"
-          ? (String(formData.get("categoryKey") ?? "work") as TaskCategoryKey)
-          : null,
+          ? (String(formData.get("categoryKey") ?? defaultTaskCategory) as TaskCategoryKey)
+          : (String(formData.get("categoryKey") ?? defaultReminderCategory) as TaskCategoryKey),
       scheduledDate: String(formData.get("scheduledDate") ?? ""),
     };
 
@@ -380,6 +396,7 @@ export function CalendarWorkspace({
                   <div className="mt-1.5 space-y-1">
                     {visibleItems.map((item) => (
                       <CalendarItemChip
+                        categories={categories}
                         item={item}
                         key={item.id}
                         onDelete={deleteItem}
@@ -428,7 +445,7 @@ export function CalendarWorkspace({
                 Category
                 <select
                   className="mt-1 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100"
-                  defaultValue="work"
+                  defaultValue={defaultTaskCategory}
                   name="draftCategory"
                 >
                   {taskCategories.map((category) => (
@@ -471,7 +488,7 @@ export function CalendarWorkspace({
                 </div>
               )}
               {drafts.map((draft) => {
-                const category = categoryFor(draft.categoryKey);
+                const category = categoryFor(taskCategories, draft.categoryKey);
 
                 return (
                   <article
@@ -605,18 +622,21 @@ export function CalendarWorkspace({
                   type="date"
                 />
               </label>
-              {composer.kind === "task" && (
+              {(composer.kind === "task" || composer.kind === "reminder") && (
                 <fieldset className="sm:col-span-2">
-                  <legend className="text-xs font-medium text-slate-600">Task category</legend>
+                  <legend className="text-xs font-medium text-slate-600">
+                    {composer.kind === "task" ? "Task category" : "Reminder category"}
+                  </legend>
                   <div className="mt-1 grid gap-2 sm:grid-cols-2">
-                    {taskCategories.map((category) => (
+                    {(composer.kind === "task" ? taskCategories : reminderCategories).map((category) => (
                       <label
                         className={`flex h-10 items-center gap-2 rounded-md border px-3 text-sm font-medium ${category.chipClassName}`}
                         key={category.key}
                       >
                         <input
                           defaultChecked={
-                            (composer.item?.categoryKey ?? "work") === category.key
+                            (composer.item?.categoryKey ??
+                              (composer.kind === "task" ? defaultTaskCategory : defaultReminderCategory)) === category.key
                           }
                           name="categoryKey"
                           type="radio"
@@ -669,16 +689,21 @@ export function CalendarWorkspace({
 }
 
 function CalendarItemChip({
+  categories,
   item,
   onDelete,
   onEdit,
 }: {
+  categories: CalendarCategory[];
   item: CalendarItemRecord;
   onDelete: (id: number) => void;
   onEdit: (item: CalendarItemRecord) => void;
 }) {
-  const category = categoryFor(item.categoryKey);
-  const tone = item.kind === "reminder" ? reminderTone : category.chipClassName;
+  const scopedCategories = categories.filter((category) =>
+    item.kind === "reminder" ? category.scope === "reminders" : category.scope === "tasks",
+  );
+  const category = categoryFor(scopedCategories, item.categoryKey);
+  const tone = item.kind === "reminder" && !category ? reminderTone : category.chipClassName;
 
   return (
     <article

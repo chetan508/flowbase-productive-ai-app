@@ -4,6 +4,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { db, generatedApps, type GeneratedApp, type GeneratedAppTemplate } from "@/db";
+import { assertWithinFreeLimit, getCurrentPlanTier } from "@/lib/entitlements";
 import { normalizeGeneratedAppTemplate } from "@/lib/generated-apps";
 import { requireWorkspaceUser } from "@/lib/workspace-user";
 
@@ -164,6 +165,7 @@ export async function getGeneratedAppAction(appId: number): Promise<GeneratedApp
 
 export async function generateTemplateAppAction(promptInput: string): Promise<GeneratedAppRecord> {
   const user = await requireWorkspaceUser();
+  await assertWithinFreeLimit(user, "generatedApps", await getCurrentPlanTier());
   const prompt = promptInput.trim().slice(0, maxPromptLength);
   if (prompt.length < 3) {
     throw new Error("Describe the app you want to build.");

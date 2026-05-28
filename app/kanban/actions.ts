@@ -20,6 +20,7 @@ import {
   type KanbanBoardRecord,
   type KanbanTaskInput,
 } from "@/lib/kanban";
+import { assertWithinFreeLimit, getCurrentPlanTier } from "@/lib/entitlements";
 import { colorForIdentity, normalizeEmail } from "@/lib/identity";
 import { tryEnsureKanbanRoom, tryGrantKanbanRoomAccess } from "@/lib/liveblocks";
 import { requireWorkspaceUser } from "@/lib/workspace-user";
@@ -265,6 +266,7 @@ async function createStarterBoard(user: User) {
 
 export async function createBoardAction(input: { name: string; color: string }) {
   const user = await requireWorkspaceUser();
+  await assertWithinFreeLimit(user, "kanbanBoards", await getCurrentPlanTier());
   const [board] = await db
     .insert(kanbanBoards)
     .values({
