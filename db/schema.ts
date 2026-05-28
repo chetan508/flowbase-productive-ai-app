@@ -226,6 +226,20 @@ export const whiteboards = pgTable("whiteboards", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const notes = pgTable("notes", {
+  id: serial("id").primaryKey(),
+  ownerId: integer("owner_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  content: text("content").notNull().default("<p></p>"),
+  color: text("color").notNull().default("sky"),
+  pinned: integer("pinned").notNull().default(0),
+  trashed: integer("trashed").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const generatedApps = pgTable("generated_apps", {
   id: serial("id").primaryKey(),
   ownerId: integer("owner_id")
@@ -319,6 +333,8 @@ export type KanbanTask = typeof kanbanTasks.$inferSelect;
 export type NewKanbanTask = typeof kanbanTasks.$inferInsert;
 export type Whiteboard = typeof whiteboards.$inferSelect;
 export type NewWhiteboard = typeof whiteboards.$inferInsert;
+export type Note = typeof notes.$inferSelect;
+export type NewNote = typeof notes.$inferInsert;
 export type GeneratedApp = typeof generatedApps.$inferSelect;
 export type NewGeneratedApp = typeof generatedApps.$inferInsert;
 export type Space = typeof spaces.$inferSelect;
