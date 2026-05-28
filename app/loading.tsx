@@ -1,30 +1,15 @@
-import { WorkspaceShell } from "@/components/workspace-shell";
-import { Card, CardContent } from "@/components/ui/card";
+import { Sparkles } from "lucide-react";
 
 export default function Loading() {
   return (
-    <WorkspaceShell>
-      <div className="space-y-5">
-        <header className="border-b border-border/80 pb-5">
-          <div className="h-4 w-40 animate-pulse rounded bg-slate-200" />
-          <div className="mt-3 h-8 w-52 animate-pulse rounded bg-slate-200" />
-        </header>
-        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }, (_, index) => (
-            <Card className="rounded-lg border-white/80 bg-white/85 shadow-sm shadow-slate-200/60" key={index}>
-              <CardContent className="space-y-4 p-4">
-                <div className="h-9 w-9 animate-pulse rounded-lg bg-slate-200" />
-                <div className="h-4 w-32 animate-pulse rounded bg-slate-200" />
-                <div className="h-3 w-full animate-pulse rounded bg-slate-100" />
-              </CardContent>
-            </Card>
-          ))}
-        </section>
-        <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
-          <div className="h-96 animate-pulse rounded-lg bg-white/80" />
-          <div className="h-96 animate-pulse rounded-lg bg-white/80" />
-        </section>
+    <main className="grid min-h-screen place-items-center bg-[linear-gradient(180deg,#f5fbfd_0%,#ffffff_55%,#f7fbff_100%)] px-6 text-slate-950">
+      <div className="flex flex-col items-center text-center">
+        <div className="grid size-12 place-items-center rounded-xl bg-slate-950 text-white shadow-sm shadow-cyan-200">
+          <Sparkles aria-hidden="true" className="size-5 animate-pulse text-amber-300" />
+        </div>
+        <p className="mt-4 text-sm font-semibold text-slate-900">Loading Flowbase</p>
+        <p className="mt-1 text-sm text-slate-500">Preparing your workspace.</p>
       </div>
-    </WorkspaceShell>
+    </main>
   );
 }

@@ -39,7 +39,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       {
         label: "Dashboard",
-        href: "/",
+        href: "/dashboard",
         icon: LayoutDashboard,
         iconClassName: "text-sky-500",
       },
@@ -119,10 +119,7 @@ function SidebarItem({
 }) {
   const pathname = usePathname();
   const Icon = item.icon;
-  const active =
-    item.href === "/"
-      ? pathname === "/" && item.label === "Dashboard"
-      : pathname.startsWith(item.href);
+  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
   return (
     <Link

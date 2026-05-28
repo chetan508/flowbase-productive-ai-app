@@ -62,7 +62,7 @@ export async function GET(request: Request) {
       .set({ email: primaryEmail, name })
       .where(eq(users.id, existingByClerkId.id));
 
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   if (existingByEmail) {
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
       .set({ clerkId: user.id, name })
       .where(eq(users.id, existingByEmail.id));
 
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   await db.insert(users).values({
@@ -87,5 +87,5 @@ export async function GET(request: Request) {
     name,
   });
 
-  return NextResponse.redirect(new URL("/", request.url));
+  return NextResponse.redirect(new URL("/dashboard", request.url));
 }
