@@ -45,7 +45,7 @@ const menuGroups: MenuGroup[] = [
       },
       {
         label: "AI Assistant",
-        href: "/",
+        href: "/assistant",
         icon: Bot,
         iconClassName: "text-fuchsia-500",
       },

@@ -12,21 +12,18 @@ import {
   Star,
   Trash2,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
+import {
+  createNoteAction,
+  softDeleteNoteAction,
+  updateNoteAction,
+  type NoteColor,
+  type NoteRecord,
+} from "@/app/notes/actions";
 import { NotesEditor } from "@/components/notes/notes-editor";
 
-export type NoteColor = "sky" | "rose" | "emerald" | "amber" | "violet";
-
-export type NotePage = {
-  id: string;
-  title: string;
-  content: string;
-  color: NoteColor;
-  pinned: boolean;
-  updatedAt: string;
-  trashed?: boolean;
-};
+export type NotePage = NoteRecord;
 
 const colorStyles: Record<NoteColor, { dot: string; soft: string; label: string }> = {
   sky: { dot: "bg-sky-400", soft: "bg-sky-50 text-sky-700", label: "Blue" },
@@ -35,46 +32,6 @@ const colorStyles: Record<NoteColor, { dot: string; soft: string; label: string 
   amber: { dot: "bg-amber-400", soft: "bg-amber-50 text-amber-700", label: "Amber" },
   violet: { dot: "bg-violet-400", soft: "bg-violet-50 text-violet-700", label: "Violet" },
 };
-
-const starterNotes: NotePage[] = [
-  {
-    id: "welcome-note",
-    title: "Weekly planning notes",
-    color: "sky",
-    pinned: true,
-    updatedAt: new Date().toISOString(),
-    content:
-      "<h2>Weekly planning notes</h2><p>Shape the week around fewer, clearer moves. Try selecting this sentence to open the bubble menu, or type / on a new line for commands.</p><ul><li>Review current tasks</li><li>Capture loose ideas</li><li>Turn decisions into next actions</li></ul>",
-  },
-  {
-    id: "research-snippets",
-    title: "Research snippets",
-    color: "emerald",
-    pinned: false,
-    updatedAt: new Date(Date.now() - 1000 * 60 * 46).toISOString(),
-    content:
-      "<h2>Research snippets</h2><p>Collect useful fragments here, then refine them into a tighter brief.</p><blockquote>Good notes make the next version easier to see.</blockquote>",
-  },
-  {
-    id: "launch-ideas",
-    title: "Launch ideas",
-    color: "rose",
-    pinned: false,
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    content: "<h2>Launch ideas</h2><p>Draft announcement angles, customer examples, and follow-up tasks.</p>",
-  },
-];
-
-function createNote(): NotePage {
-  return {
-    id: crypto.randomUUID(),
-    title: "Untitled note",
-    color: "amber",
-    pinned: false,
-    updatedAt: new Date().toISOString(),
-    content: "<p></p>",
-  };
-}
 
 function formatUpdatedAt(value: string) {
   const diff = Date.now() - new Date(value).getTime();
@@ -88,28 +45,14 @@ function formatUpdatedAt(value: string) {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(new Date(value));
 }
 
-export function NotesWorkspace() {
-  const [notes, setNotes] = useState<NotePage[]>(starterNotes);
-  const [selectedId, setSelectedId] = useState(starterNotes[0]?.id ?? "");
+export function NotesWorkspace({ initialNotes }: { initialNotes: NotePage[] }) {
+  const [notes, setNotes] = useState<NotePage[]>(initialNotes);
+  const [selectedId, setSelectedId] = useState(initialNotes.find((note) => !note.trashed)?.id ?? "");
   const [search, setSearch] = useState("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem("flowbase-notes");
-    if (stored) {
-      const parsed = JSON.parse(stored) as NotePage[];
-      setNotes(parsed);
-      setSelectedId(parsed.find((note) => !note.trashed)?.id ?? "");
-    }
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (hydrated) {
-      window.localStorage.setItem("flowbase-notes", JSON.stringify(notes));
-    }
-  }, [hydrated, notes]);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const saveTimersRef = useRef<Map<string, number>>(new Map());
 
   const visibleNotes = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -128,37 +71,88 @@ export function NotesWorkspace() {
     }
   }, [selectedNote, visibleNotes]);
 
+  useEffect(() => {
+    return () => {
+      saveTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+      saveTimersRef.current.clear();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!feedback) return;
+    const timeout = window.setTimeout(() => setFeedback(null), 3600);
+    return () => window.clearTimeout(timeout);
+  }, [feedback]);
+
+  function queueSave(id: string, patch: Partial<NotePage>) {
+    const currentTimer = saveTimersRef.current.get(id);
+    if (currentTimer) window.clearTimeout(currentTimer);
+
+    const timer = window.setTimeout(async () => {
+      saveTimersRef.current.delete(id);
+      try {
+        const updated = await updateNoteAction(id, patch);
+        setNotes((current) => current.map((note) => (note.id === id ? { ...note, ...updated } : note)));
+      } catch (error) {
+        setFeedback(error instanceof Error ? error.message : "Note update failed.");
+      }
+    }, 550);
+
+    saveTimersRef.current.set(id, timer);
+  }
+
   function updateNote(id: string, patch: Partial<NotePage>) {
     setNotes((current) =>
       current.map((note) =>
         note.id === id ? { ...note, ...patch, updatedAt: patch.updatedAt ?? new Date().toISOString() } : note,
       ),
     );
+    queueSave(id, patch);
   }
 
   function addNote() {
-    const note = createNote();
-    setNotes((current) => [note, ...current]);
-    setSelectedId(note.id);
+    startTransition(async () => {
+      try {
+        const note = await createNoteAction({ color: "amber" });
+        setNotes((current) => [note, ...current]);
+        setSelectedId(note.id);
+        setFeedback("Note created.");
+      } catch (error) {
+        setFeedback(error instanceof Error ? error.message : "Note creation failed.");
+      }
+    });
   }
 
   function duplicateNote(note: NotePage) {
-    const copyNote: NotePage = {
-      ...note,
-      id: crypto.randomUUID(),
-      title: `${note.title} copy`,
-      pinned: false,
-      updatedAt: new Date().toISOString(),
-    };
-    setNotes((current) => [copyNote, ...current]);
-    setSelectedId(copyNote.id);
-    setOpenMenuId(null);
+    startTransition(async () => {
+      try {
+        const copyNote = await createNoteAction({
+          title: `${note.title} copy`,
+          content: note.content,
+          color: note.color,
+        });
+        setNotes((current) => [copyNote, ...current]);
+        setSelectedId(copyNote.id);
+        setOpenMenuId(null);
+        setFeedback("Note duplicated.");
+      } catch (error) {
+        setFeedback(error instanceof Error ? error.message : "Note duplication failed.");
+      }
+    });
   }
 
   function deleteNote(id: string) {
     setNotes((current) => current.map((note) => (note.id === id ? { ...note, trashed: true, updatedAt: new Date().toISOString() } : note)));
     setSelectedId((currentId) => (currentId === id ? visibleNotes.find((note) => note.id !== id)?.id ?? "" : currentId));
     setOpenMenuId(null);
+    startTransition(async () => {
+      try {
+        await softDeleteNoteAction(id);
+        setFeedback("Note moved to trash.");
+      } catch (error) {
+        setFeedback(error instanceof Error ? error.message : "Note delete failed.");
+      }
+    });
   }
 
   function renameNote(note: NotePage) {
@@ -180,6 +174,7 @@ export function NotesWorkspace() {
               aria-label="New Note"
               className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-slate-950 text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
               onClick={addNote}
+              disabled={isPending}
               title="New Note"
               type="button"
             >
@@ -298,6 +293,14 @@ export function NotesWorkspace() {
           </div>
         )}
       </section>
+      {feedback && (
+        <p
+          aria-live="polite"
+          className="fixed bottom-4 right-4 z-20 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg"
+        >
+          {feedback}
+        </p>
+      )}
     </div>
   );
 }
