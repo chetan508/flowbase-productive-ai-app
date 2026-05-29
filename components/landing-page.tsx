@@ -29,6 +29,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Reveal } from "@/components/reveal";
 import { cn } from "@/lib/utils";
 
 const features = [
@@ -222,10 +223,10 @@ function Navbar() {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <Button asChild className="hidden rounded-lg bg-white text-slate-700 shadow-none ring-1 ring-slate-200 hover:bg-slate-50 sm:inline-flex">
+          <Button asChild className="pressable hidden rounded-lg bg-white text-slate-700 shadow-none ring-1 ring-slate-200 hover:bg-slate-50 sm:inline-flex">
             <Link href="/sign-in">Sign in</Link>
           </Button>
-          <Button asChild className="rounded-lg bg-slate-950 text-white shadow-sm hover:bg-slate-800">
+          <Button asChild className="pressable rounded-lg bg-slate-950 text-white shadow-sm hover:bg-slate-800">
             <Link href="/sign-up">
               Get Started
               <ArrowRight aria-hidden="true" className="ml-2 size-4" />
@@ -242,7 +243,7 @@ function HeroSection() {
     <section className="relative px-4 pb-20 pt-14 sm:px-6 lg:px-8 lg:pb-28 lg:pt-20">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(34,211,238,0.22),transparent_28%),radial-gradient(circle_at_80%_20%,rgba(244,114,182,0.16),transparent_26%),radial-gradient(circle_at_50%_80%,rgba(16,185,129,0.12),transparent_34%)]" />
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
-        <div>
+        <Reveal>
           <div className="inline-flex items-center gap-2 rounded-full border border-cyan-100 bg-white/80 px-3 py-1 text-sm font-medium text-slate-700 shadow-sm">
             <Zap aria-hidden="true" className="size-4 text-amber-500" />
             AI-first productivity for modern teams
@@ -254,13 +255,13 @@ function HeroSection() {
             Flowbase brings your dashboard, calendar, kanban boards, rich notes, visual whiteboards, AI assistant, templates, and live collaboration into one premium workspace.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button asChild className="h-11 rounded-lg bg-slate-950 px-6 text-white shadow-sm shadow-slate-300 hover:bg-slate-800">
+            <Button asChild className="pressable h-11 rounded-lg bg-slate-950 px-6 text-white shadow-sm shadow-slate-300 hover:bg-slate-800">
               <Link href="/sign-up">
                 Get Started
                 <ArrowRight aria-hidden="true" className="ml-2 size-4" />
               </Link>
             </Button>
-            <Button asChild className="h-11 rounded-lg border-slate-200 bg-white/80 px-6 text-slate-800 shadow-sm hover:bg-white" variant="outline">
+            <Button asChild className="pressable h-11 rounded-lg border-slate-200 bg-white/80 px-6 text-slate-800 shadow-sm hover:bg-white" variant="outline">
               <a href="#showcase">
                 <Play aria-hidden="true" className="mr-2 size-4 text-cyan-600" />
                 Watch Demo
@@ -274,8 +275,10 @@ function HeroSection() {
               </span>
             ))}
           </div>
-        </div>
-        <HeroDashboardMockup />
+        </Reveal>
+        <Reveal delay={120}>
+          <HeroDashboardMockup />
+        </Reveal>
       </div>
     </section>
   );
@@ -283,7 +286,7 @@ function HeroSection() {
 
 function HeroDashboardMockup() {
   return (
-    <div className="rounded-[1.25rem] border border-white/90 bg-white/78 p-3 shadow-[0_30px_100px_rgba(15,23,42,0.14)] backdrop-blur-xl">
+    <div className="hero-float rounded-[1.25rem] border border-white/90 bg-white/78 p-3 shadow-[0_30px_100px_rgba(15,23,42,0.14)] backdrop-blur-xl">
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-950">
         <div className="flex h-10 items-center gap-2 border-b border-white/10 bg-slate-900 px-4">
           <span className="size-2.5 rounded-full bg-rose-400" />
@@ -322,7 +325,7 @@ function HeroDashboardMockup() {
                 ["AI plans", "8 drafts", "bg-rose-50 text-rose-600"],
                 ["Progress", "74%", "bg-emerald-50 text-emerald-600"],
               ].map(([label, value, tone]) => (
-                <div className="rounded-lg border border-white bg-white/90 p-3 shadow-sm" key={label}>
+                <div className="ui-card ui-card-hover p-3" key={label}>
                   <span className={cn("inline-flex rounded-md px-2 py-1 text-xs font-medium", tone)}>{label}</span>
                   <p className="mt-4 text-xl font-semibold text-slate-950">{value}</p>
                 </div>
@@ -375,11 +378,11 @@ function HeroDashboardMockup() {
 
 function SectionIntro({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
   return (
-    <div className="mx-auto max-w-3xl text-center">
+    <Reveal className="mx-auto max-w-3xl text-center">
       <p className="text-sm font-semibold uppercase text-cyan-700">{eyebrow}</p>
       <h2 className="mt-3 text-3xl font-semibold leading-tight text-slate-950 sm:text-4xl">{title}</h2>
       <p className="mt-4 text-base leading-7 text-slate-600">{description}</p>
-    </div>
+    </Reveal>
   );
 }
 
@@ -396,15 +399,17 @@ function FeatureSection() {
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
-              <Card className={cn("group rounded-lg border bg-gradient-to-br shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl", feature.tone)} key={feature.title}>
-                <CardContent className="p-5">
-                  <div className="grid size-11 place-items-center rounded-lg bg-white shadow-sm">
-                    <Icon aria-hidden="true" className="size-5" />
-                  </div>
-                  <h3 className="mt-5 text-lg font-semibold text-slate-950">{feature.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{feature.description}</p>
-                </CardContent>
-              </Card>
+              <Reveal delay={(features.indexOf(feature) % 3) * 70} key={feature.title}>
+                <Card className={cn("group ui-card-hover rounded-lg border bg-gradient-to-br shadow-sm transition duration-300", feature.tone)}>
+                  <CardContent className="p-5">
+                    <div className="grid size-11 place-items-center rounded-lg bg-white shadow-sm transition duration-300 group-hover:rotate-3 group-hover:scale-105">
+                      <Icon aria-hidden="true" className="size-5" />
+                    </div>
+                    <h3 className="mt-5 text-lg font-semibold text-slate-950">{feature.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              </Reveal>
             );
           })}
         </div>
@@ -431,7 +436,7 @@ function HowItWorksSection() {
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (
-              <div className="rounded-lg border border-white bg-white/85 p-6 shadow-sm shadow-slate-200/60" key={step.title}>
+              <Reveal delay={index * 90} className="rounded-lg border border-white bg-white/85 p-6 shadow-sm shadow-slate-200/60 transition duration-300 hover:-translate-y-0.5 hover:shadow-lg" key={step.title}>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold text-slate-400">0{index + 1}</span>
                   <span className="grid size-11 place-items-center rounded-lg bg-cyan-50 text-cyan-600">
@@ -440,7 +445,7 @@ function HowItWorksSection() {
                 </div>
                 <h3 className="mt-6 text-lg font-semibold text-slate-950">{step.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{step.description}</p>
-              </div>
+              </Reveal>
             );
           })}
         </div>
@@ -465,8 +470,8 @@ function ProductShowcase() {
                 <div className="rounded-lg border border-slate-100 bg-white p-4" key={item}>
                   <p className="text-xs font-medium text-slate-500">{item}</p>
                   <p className="mt-3 text-2xl font-semibold text-slate-950">{[6, 24, 18, 9][index]}</p>
-                  <div className="mt-3 h-2 rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-cyan-400" style={{ width: `${[64, 78, 52, 86][index]}%` }} />
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div className="progress-grow h-full rounded-full bg-cyan-400" style={{ width: `${[64, 78, 52, 86][index]}%` }} />
                   </div>
                 </div>
               ))}
@@ -514,7 +519,7 @@ function ProductShowcase() {
 
 function ShowcaseCard({ title, icon: Icon, className, children }: { title: string; icon: typeof Sparkles; className?: string; children: React.ReactNode }) {
   return (
-    <div className={cn("rounded-lg border border-white bg-white/82 p-4 shadow-sm shadow-slate-200/70", className)}>
+    <Reveal className={cn("ui-card ui-card-hover p-4", className)}>
       <div className="mb-4 flex items-center gap-2">
         <span className="grid size-9 place-items-center rounded-lg bg-slate-950 text-white">
           <Icon aria-hidden="true" className="size-4 text-cyan-300" />
@@ -522,7 +527,7 @@ function ShowcaseCard({ title, icon: Icon, className, children }: { title: strin
         <h3 className="text-base font-semibold text-slate-950">{title}</h3>
       </div>
       {children}
-    </div>
+    </Reveal>
   );
 }
 
@@ -545,13 +550,13 @@ function AIWorkflowSection() {
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {aiFeatures.map((feature, index) => (
-            <div className="rounded-lg border border-white/10 bg-white/[0.06] p-4 shadow-sm transition hover:bg-white/[0.09]" key={feature}>
+            <Reveal delay={(index % 2) * 80} className="rounded-lg border border-white/10 bg-white/[0.06] p-4 shadow-sm transition hover:-translate-y-0.5 hover:bg-white/[0.09]" key={feature}>
               <div className="mb-4 flex items-center justify-between">
                 <Sparkles aria-hidden="true" className="size-5 text-amber-300" />
                 <span className="text-xs font-semibold text-slate-500">AI 0{index + 1}</span>
               </div>
               <p className="font-medium text-white">{feature}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -562,7 +567,7 @@ function AIWorkflowSection() {
 function CollaborationSection() {
   return (
     <section className="px-4 py-20 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-10 rounded-[1.25rem] border border-white bg-white/78 p-6 shadow-sm shadow-slate-200/70 md:p-10 lg:grid-cols-[1fr_0.9fr]">
+      <Reveal className="mx-auto grid max-w-7xl gap-10 rounded-[1.25rem] border border-white bg-white/78 p-6 shadow-sm shadow-slate-200/70 md:p-10 lg:grid-cols-[1fr_0.9fr]">
         <div>
           <p className="text-sm font-semibold uppercase text-cyan-700">Collaboration</p>
           <h2 className="mt-3 text-3xl font-semibold leading-tight text-slate-950 sm:text-4xl">A shared workspace for teams that move quickly</h2>
@@ -594,7 +599,7 @@ function CollaborationSection() {
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
@@ -612,11 +617,11 @@ function UseCasesSection() {
           {useCases.map((useCase) => {
             const Icon = useCase.icon;
             return (
-              <div className="rounded-lg border border-white bg-white/82 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={useCase.title}>
+              <Reveal className="rounded-lg border border-white bg-white/82 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={useCase.title}>
                 <Icon aria-hidden="true" className="size-5 text-cyan-600" />
                 <h3 className="mt-4 text-lg font-semibold text-slate-950">{useCase.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{useCase.description}</p>
-              </div>
+              </Reveal>
             );
           })}
         </div>
@@ -636,7 +641,7 @@ function PricingSection() {
         />
         <div className="mt-12 grid gap-4 lg:grid-cols-3">
           {pricing.map((plan) => (
-            <div className={cn("rounded-xl border bg-white/85 p-6 shadow-sm", plan.featured ? "border-slate-950 shadow-xl shadow-slate-200" : "border-white")} key={plan.name}>
+            <Reveal className={cn("rounded-xl border bg-white/85 p-6 shadow-sm transition duration-300 hover:-translate-y-0.5", plan.featured ? "border-slate-950 shadow-xl shadow-slate-200" : "border-white")} key={plan.name}>
               {plan.featured && <span className="rounded-full bg-slate-950 px-3 py-1 text-xs font-semibold text-white">Most popular</span>}
               <h3 className="mt-5 text-xl font-semibold text-slate-950">{plan.name}</h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">{plan.description}</p>
@@ -644,7 +649,7 @@ function PricingSection() {
                 <span className="text-4xl font-semibold text-slate-950">{plan.price}</span>
                 <span className="pb-1 text-sm text-slate-500">/mo</span>
               </div>
-              <Button asChild className={cn("mt-6 w-full rounded-lg", plan.featured ? "bg-slate-950 text-white hover:bg-slate-800" : "bg-white text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50")}>
+              <Button asChild className={cn("pressable mt-6 w-full rounded-lg", plan.featured ? "bg-slate-950 text-white hover:bg-slate-800" : "bg-white text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50")}>
                 <Link href="/sign-up">{plan.cta}</Link>
               </Button>
               <div className="mt-6 space-y-3">
@@ -655,7 +660,7 @@ function PricingSection() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -674,7 +679,7 @@ function TestimonialsSection() {
         />
         <div className="mt-12 grid gap-4 md:grid-cols-3">
           {testimonials.map((testimonial) => (
-            <div className="rounded-lg border border-white bg-white/85 p-6 shadow-sm" key={testimonial.name}>
+            <Reveal className="rounded-lg border border-white bg-white/85 p-6 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-lg" key={testimonial.name}>
               <p className="text-sm leading-7 text-slate-700">“{testimonial.quote}”</p>
               <div className="mt-6 flex items-center gap-3">
                 <span className="grid size-10 place-items-center rounded-full bg-slate-950 text-sm font-bold text-white">{testimonial.name.split(" ").map((part) => part[0]).join("")}</span>
@@ -683,7 +688,7 @@ function TestimonialsSection() {
                   <p className="text-xs text-slate-500">{testimonial.role}</p>
                 </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -702,7 +707,7 @@ function FAQSection() {
         />
         <div className="mt-12 space-y-3">
           {faqs.map((faq) => (
-            <details className="group rounded-lg border border-white bg-white/85 p-5 shadow-sm open:shadow-md" key={faq.question}>
+            <details className="group rounded-lg border border-white bg-white/85 p-5 shadow-sm transition duration-300 open:shadow-md" key={faq.question}>
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold text-slate-950">
                 {faq.question}
                 <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-slate-400 transition group-open:rotate-90" />
@@ -719,17 +724,17 @@ function FAQSection() {
 function FinalCTASection() {
   return (
     <section className="px-4 pb-20 pt-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl rounded-[1.25rem] bg-slate-950 px-6 py-14 text-center text-white shadow-2xl shadow-slate-300 sm:px-10">
+      <Reveal className="mx-auto max-w-6xl rounded-[1.25rem] bg-slate-950 px-6 py-14 text-center text-white shadow-2xl shadow-slate-300 sm:px-10">
         <p className="text-sm font-semibold uppercase text-cyan-300">Start today</p>
         <h2 className="mx-auto mt-3 max-w-3xl text-3xl font-semibold leading-tight sm:text-5xl">Build your entire productivity system in one AI workspace</h2>
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-300">Create notes, tasks, reminders, boards, diagrams, and team workflows from one modern command center.</p>
-        <Button asChild className="mt-8 h-11 rounded-lg bg-white px-6 text-slate-950 hover:bg-cyan-50">
+        <Button asChild className="pressable mt-8 h-11 rounded-lg bg-white px-6 text-slate-950 hover:bg-cyan-50">
           <Link href="/sign-up">
             Start for Free
             <ArrowRight aria-hidden="true" className="ml-2 size-4" />
           </Link>
         </Button>
-      </div>
+      </Reveal>
     </section>
   );
 }

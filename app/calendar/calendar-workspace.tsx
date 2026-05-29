@@ -265,7 +265,7 @@ export function CalendarWorkspace({
 
   return (
     <>
-      <header className="flex flex-col gap-4 border-b border-border/80 pb-5 xl:flex-row xl:items-end xl:justify-between">
+      <header className="panel-enter flex flex-col gap-4 border-b border-border/80 pb-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <p className="text-sm font-medium text-slate-500">Calendar planning</p>
           <h1 className="mt-1 text-2xl font-semibold text-slate-950">Schedule the next move</h1>
@@ -275,9 +275,9 @@ export function CalendarWorkspace({
             {(["month", "week"] as const).map((calendarView) => (
               <button
                 aria-pressed={view === calendarView}
-                className={`h-8 rounded-md px-3 text-sm font-medium capitalize transition ${
+                className={`pressable h-8 rounded-md px-3 text-sm font-medium capitalize transition ${
                   view === calendarView
-                    ? "bg-slate-950 text-white"
+                    ? "selected-glow bg-slate-950 text-white"
                     : "text-slate-600 hover:bg-cyan-50 hover:text-slate-950"
                 }`}
                 key={calendarView}
@@ -289,7 +289,7 @@ export function CalendarWorkspace({
             ))}
           </div>
           <button
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+            className="pressable inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
             onClick={() => setComposer({ item: null, kind: "task", scheduledDate: selectedDate })}
             type="button"
           >
@@ -353,13 +353,13 @@ export function CalendarWorkspace({
 
               return (
                 <article
-                  className={`group min-w-0 rounded-lg border p-1.5 transition sm:p-2 ${
+                  className={`group min-w-0 rounded-lg border p-1.5 transition duration-200 sm:p-2 ${
                     view === "month" ? "min-h-32" : "min-h-[460px]"
                   } ${
                     dropTarget === key
-                      ? "border-cyan-400 bg-cyan-50"
+                      ? "scale-[1.01] border-cyan-400 bg-cyan-50 shadow-lg shadow-cyan-100/70"
                       : isSelected
-                        ? "border-slate-400 bg-white"
+                        ? "selected-glow border-slate-400 bg-white"
                         : "border-slate-100 bg-[color:var(--soft-panel)]"
                   } ${isOutsideMonth ? "opacity-60" : ""}`}
                   data-testid={`calendar-date-${key}`}
@@ -548,17 +548,17 @@ export function CalendarWorkspace({
       {feedback && (
         <p
           aria-live="polite"
-          className="fixed bottom-4 right-4 z-20 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg"
+          className="toast-pop fixed bottom-4 right-4 z-20 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg"
         >
           {feedback}
         </p>
       )}
 
       {composer && (
-        <div className="fixed inset-0 z-30 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
+        <div className="modal-backdrop fixed inset-0 z-30 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
           <form
             aria-label={composer.item ? "Edit calendar item" : "Create calendar item"}
-            className="w-full max-w-lg rounded-lg border border-white bg-white p-4 shadow-2xl shadow-slate-950/20 sm:p-5"
+            className="modal-panel w-full max-w-lg rounded-lg border border-white bg-white p-4 shadow-2xl shadow-slate-950/20 sm:p-5"
             onSubmit={submitComposer}
           >
             <div className="flex items-start justify-between gap-4">
@@ -707,7 +707,7 @@ function CalendarItemChip({
 
   return (
     <article
-      className={`min-w-0 cursor-pointer rounded-md border px-1.5 py-1 text-left ${tone}`}
+      className={`pressable min-w-0 cursor-pointer rounded-md border px-1.5 py-1 text-left transition hover:-translate-y-0.5 ${tone}`}
       draggable
       onClick={() => onEdit(item)}
       onDragStart={(event) => {

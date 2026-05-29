@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ElementType } from "react";
 import {
   and,
   desc,
@@ -7,6 +8,8 @@ import {
   or,
 } from "drizzle-orm";
 import {
+  AlertTriangle,
+  ArrowRight,
   Bot,
   CalendarDays,
   CheckCircle2,
@@ -21,6 +24,7 @@ import {
   Plus,
   Sparkles,
   StickyNote,
+  Target,
   WandSparkles,
   Workflow,
 } from "lucide-react";
@@ -73,6 +77,8 @@ type RecentPage = {
   icon: typeof StickyNote;
   color: string;
 };
+
+type PreviewKind = "calendar" | "kanban" | "notes" | "whiteboard" | "assistant" | "template";
 
 function todayKey() {
   const today = new Date();
@@ -192,6 +198,7 @@ export default async function Home() {
   const featureCards = [
     {
       name: "Calendar",
+      preview: "calendar" as PreviewKind,
       icon: CalendarDays,
       status: statusLabel(userCalendarItems.length),
       stat: `${userCalendarItems.length} items`,
@@ -200,6 +207,7 @@ export default async function Home() {
     },
     {
       name: "Kanban / Tasks",
+      preview: "kanban" as PreviewKind,
       icon: ListChecks,
       status: statusLabel(boardTasks.length),
       stat: `${boardTasks.length} tasks`,
@@ -208,6 +216,7 @@ export default async function Home() {
     },
     {
       name: "Notes",
+      preview: "notes" as PreviewKind,
       icon: NotebookPen,
       status: statusLabel(userNotes.length),
       stat: `${userNotes.length} notes`,
@@ -216,6 +225,7 @@ export default async function Home() {
     },
     {
       name: "Whiteboard",
+      preview: "whiteboard" as PreviewKind,
       icon: Workflow,
       status: statusLabel(userWhiteboards.length),
       stat: `${userWhiteboards.length} boards`,
@@ -224,6 +234,7 @@ export default async function Home() {
     },
     {
       name: "AI Assistant",
+      preview: "assistant" as PreviewKind,
       icon: Bot,
       status: statusLabel(1, !aiSettings.features.assistant),
       stat: aiSettings.features.assistant ? "Enabled" : "Off in settings",
@@ -232,6 +243,7 @@ export default async function Home() {
     },
     {
       name: "AI Template Builder",
+      preview: "template" as PreviewKind,
       icon: WandSparkles,
       status: statusLabel(userApps.length, !aiSettings.features.templateBuilder),
       stat: `${userApps.length} apps`,
@@ -342,28 +354,46 @@ export default async function Home() {
     todaysReminders.length > 0 ? `You have ${todaysReminders.length} reminder${todaysReminders.length === 1 ? "" : "s"} today.` : "No calendar reminders scheduled for today.",
     overdueTasks.length > 0 ? "Suggested focus: finish high-priority overdue tasks first." : "Suggested focus: plan the next concrete task before opening new work.",
   ];
+  const nextCalendarItem = upcomingCalendar[0] ?? null;
+  const focusCopy = overdueTasks.length > 0 ? "Clear overdue work first" : todaysReminders.length > 0 ? "Prepare today's reminders" : "Plan one concrete next move";
 
   return (
     <WorkspaceShell>
-      <div className="space-y-5">
-        <header className="flex flex-col gap-4 border-b border-border/80 pb-5 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-500">Welcome back, {settings.displayName || user.name || "there"}</p>
-            <h1 className="mt-1 text-2xl font-semibold text-slate-950">Dashboard</h1>
+      <div className="space-y-4 sm:space-y-5">
+        <header className="panel-enter ui-card overflow-hidden p-4 sm:p-5">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-slate-500">Welcome back, {settings.displayName || user.name || "there"}</p>
+              <h1 className="mt-1 text-2xl font-semibold text-slate-950">Today&apos;s command center</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                {focusCopy}. Your workspace is {progress}% through current board tasks.
+              </p>
+            </div>
+            <Button asChild className="pressable h-10 shrink-0 rounded-lg bg-slate-950 px-3 text-white shadow-sm hover:bg-slate-800">
+              <Link href="/assistant">
+                <Sparkles aria-hidden="true" className="mr-2 size-4 text-amber-300" />
+                Ask AI
+              </Link>
+            </Button>
           </div>
-          <Button asChild className="h-10 rounded-lg bg-slate-950 px-3 text-white shadow-sm hover:bg-slate-800">
-            <Link href="/assistant">
-              <Sparkles aria-hidden="true" className="mr-2 size-4 text-amber-300" />
-              Ask AI
-            </Link>
-          </Button>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            <FocusTile icon={Target} label="Focus" tone="bg-amber-50 text-amber-700 border-amber-100" value={focusCopy} />
+            <FocusTile icon={ListChecks} label="Progress" tone="bg-emerald-50 text-emerald-700 border-emerald-100" value={`${progress}% completed`} />
+            <FocusTile icon={AlertTriangle} label="Overdue" tone="bg-rose-50 text-rose-700 border-rose-100" value={`${overdueTasks.length} tasks`} />
+            <FocusTile
+              icon={CalendarDays}
+              label="Next"
+              tone="bg-sky-50 text-sky-700 border-sky-100"
+              value={nextCalendarItem ? nextCalendarItem.title : "No upcoming items"}
+            />
+          </div>
         </header>
 
         <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {featureCards.map((feature) => {
             const Icon = feature.icon;
             return (
-              <Card className="rounded-lg border-white/80 bg-white/85 shadow-sm shadow-slate-200/60" key={feature.name}>
+              <Card className="ui-card ui-card-hover" key={feature.name}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className={cn("rounded-lg border p-2", feature.tone)}>
@@ -378,6 +408,7 @@ export default async function Home() {
                     <span className="font-medium text-slate-700">{feature.stat}</span>
                     <span className="truncate text-xs text-slate-500">{feature.detail}</span>
                   </div>
+                  <FeaturePreview kind={feature.preview} progress={progress} />
                 </CardContent>
               </Card>
             );
@@ -386,9 +417,12 @@ export default async function Home() {
 
         <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
           <div className="space-y-4">
-            <Card className="rounded-lg border-white/80 bg-white/85 shadow-sm shadow-slate-200/60">
+            <Card className="ui-card">
               <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
-                <CardTitle className="text-base text-slate-950">Quick access</CardTitle>
+                <div>
+                  <CardTitle className="text-base text-slate-950">Quick access</CardTitle>
+                  <p className="mt-1 text-xs text-slate-500">Jump into the next action quickly.</p>
+                </div>
                 <LayoutDashboard aria-hidden="true" className="size-4 text-slate-400" />
               </CardHeader>
               <CardContent className="grid gap-2 p-4 pt-0 sm:grid-cols-2 lg:grid-cols-3">
@@ -396,7 +430,7 @@ export default async function Home() {
                   const Icon = action.icon;
                   return (
                     <Link
-                      className="flex min-h-14 items-center justify-between gap-3 rounded-lg border border-slate-100 bg-[color:var(--soft-panel)] px-3 text-sm font-medium text-slate-800 transition hover:border-slate-200 hover:bg-white"
+                      className="pressable flex min-h-14 items-center justify-between gap-3 rounded-lg border border-slate-100 bg-[color:var(--soft-panel)] px-3 text-sm font-medium text-slate-800 transition hover:-translate-y-0.5 hover:border-slate-200 hover:bg-white hover:shadow-sm"
                       href={action.href}
                       key={action.label}
                     >
@@ -414,9 +448,12 @@ export default async function Home() {
             </Card>
 
             <div className="grid gap-4 lg:grid-cols-2">
-              <Card className="rounded-lg border-white/80 bg-white/85 shadow-sm shadow-slate-200/60">
+              <Card className="ui-card">
                 <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
-                  <CardTitle className="text-base text-slate-950">Recent activity</CardTitle>
+                  <div>
+                    <CardTitle className="text-base text-slate-950">Recent activity</CardTitle>
+                    <p className="mt-1 text-xs text-slate-500">Latest workspace changes.</p>
+                  </div>
                   <Clock3 aria-hidden="true" className="size-4 text-slate-400" />
                 </CardHeader>
                 <CardContent className="space-y-2 p-4 pt-0">
@@ -425,7 +462,7 @@ export default async function Home() {
                       const Icon = item.icon;
                       return (
                         <Link
-                          className="flex items-center gap-3 rounded-lg border border-slate-100 bg-[color:var(--soft-panel)] p-3 transition hover:bg-white"
+                          className="pressable flex items-center gap-3 rounded-lg border border-slate-100 bg-[color:var(--soft-panel)] p-3 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
                           href={item.href}
                           key={`${item.meta}-${item.title}`}
                         >
@@ -440,14 +477,23 @@ export default async function Home() {
                       );
                     })
                   ) : (
-                    <EmptyState text="No activity yet. Create a task, note, reminder, whiteboard, or AI template to fill this timeline." />
+                    <EmptyState
+                      actionHref="/kanban"
+                      actionLabel="Create task"
+                      icon={Clock3}
+                      text="Create a task, note, reminder, whiteboard, or AI template to fill this timeline."
+                      title="No activity yet"
+                    />
                   )}
                 </CardContent>
               </Card>
 
-              <Card className="rounded-lg border-white/80 bg-white/85 shadow-sm shadow-slate-200/60">
+              <Card className="ui-card">
                 <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
-                  <CardTitle className="text-base text-slate-950">Recent pages</CardTitle>
+                  <div>
+                    <CardTitle className="text-base text-slate-950">Recent pages</CardTitle>
+                    <p className="mt-1 text-xs text-slate-500">Notes, boards, templates, and spaces.</p>
+                  </div>
                   <FileText aria-hidden="true" className="size-4 text-slate-400" />
                 </CardHeader>
                 <CardContent className="space-y-2 p-4 pt-0">
@@ -456,7 +502,7 @@ export default async function Home() {
                       const Icon = page.icon;
                       return (
                         <Link
-                          className="flex items-center gap-3 rounded-lg border border-slate-100 bg-[color:var(--soft-panel)] p-3 transition hover:bg-white"
+                          className="pressable flex items-center gap-3 rounded-lg border border-slate-100 bg-[color:var(--soft-panel)] p-3 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
                           href={page.href}
                           key={`${page.meta}-${page.title}`}
                         >
@@ -471,7 +517,13 @@ export default async function Home() {
                       );
                     })
                   ) : (
-                    <EmptyState text="No pages have been opened or updated yet." />
+                    <EmptyState
+                      actionHref="/notes"
+                      actionLabel="Create note"
+                      icon={FileText}
+                      text="Open or update a note, board, template, or space to pin it here."
+                      title="No recent pages"
+                    />
                   )}
                 </CardContent>
               </Card>
@@ -479,9 +531,12 @@ export default async function Home() {
           </div>
 
           <div className="space-y-4">
-            <Card className="rounded-lg border-white/80 bg-white/85 shadow-sm shadow-slate-200/60">
+            <Card className="ui-card">
               <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
-                <CardTitle className="text-base text-slate-950">Task summary</CardTitle>
+                <div>
+                  <CardTitle className="text-base text-slate-950">Task summary</CardTitle>
+                  <p className="mt-1 text-xs text-slate-500">Board workload at a glance.</p>
+                </div>
                 <ListChecks aria-hidden="true" className="size-4 text-emerald-500" />
               </CardHeader>
               <CardContent className="p-4 pt-0">
@@ -497,15 +552,18 @@ export default async function Home() {
                     <span className="font-semibold text-slate-950">{progress}%</span>
                   </div>
                   <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-emerald-400" style={{ width: `${progress}%` }} />
+                    <div className="progress-grow h-full rounded-full bg-emerald-400" style={{ width: `${progress}%` }} />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="rounded-lg border-white/80 bg-white/85 shadow-sm shadow-slate-200/60">
+            <Card className="ui-card">
               <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
-                <CardTitle className="text-base text-slate-950">Upcoming calendar</CardTitle>
+                <div>
+                  <CardTitle className="text-base text-slate-950">Upcoming calendar</CardTitle>
+                  <p className="mt-1 text-xs text-slate-500">Scheduled tasks and reminders.</p>
+                </div>
                 <CalendarDays aria-hidden="true" className="size-4 text-sky-500" />
               </CardHeader>
               <CardContent className="space-y-2 p-4 pt-0">
@@ -516,7 +574,7 @@ export default async function Home() {
                     const tone = calendarCategoryTone(color);
                     return (
                       <Link
-                        className="flex items-center gap-3 rounded-lg border border-slate-100 bg-[color:var(--soft-panel)] p-3 transition hover:bg-white"
+                        className="pressable flex items-center gap-3 rounded-lg border border-slate-100 bg-[color:var(--soft-panel)] p-3 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
                         href="/calendar"
                         key={item.id}
                       >
@@ -534,19 +592,28 @@ export default async function Home() {
                     );
                   })
                 ) : (
-                  <EmptyState text="No upcoming scheduled tasks or reminders." />
+                  <EmptyState
+                    actionHref="/calendar"
+                    actionLabel="Add item"
+                    icon={CalendarDays}
+                    text="Schedule a task or reminder to make the next step visible."
+                    title="No upcoming items"
+                  />
                 )}
               </CardContent>
             </Card>
 
-            <Card className="rounded-lg border-white/80 bg-white/85 shadow-sm shadow-slate-200/60">
+            <Card className="ui-card">
               <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
-                <CardTitle className="text-base text-slate-950">AI insights</CardTitle>
+                <div>
+                  <CardTitle className="text-base text-slate-950">AI insights</CardTitle>
+                  <p className="mt-1 text-xs text-slate-500">Small prompts for sharper focus.</p>
+                </div>
                 <Sparkles aria-hidden="true" className="size-4 text-amber-500" />
               </CardHeader>
               <CardContent className="space-y-2 p-4 pt-0">
                 {insights.map((insight, index) => (
-                  <div className="flex gap-3 rounded-lg bg-[color:var(--soft-panel)] p-3 text-sm text-slate-700" key={insight}>
+                  <div className="panel-enter flex gap-3 rounded-lg bg-[color:var(--soft-panel)] p-3 text-sm text-slate-700" key={insight}>
                     {index === 0 && overdueTasks.length > 0 ? (
                       <Circle aria-hidden="true" className="mt-0.5 size-4 shrink-0 fill-rose-400 text-rose-400" />
                     ) : (
@@ -564,10 +631,130 @@ export default async function Home() {
   );
 }
 
-function EmptyState({ text }: { text: string }) {
+function FocusTile({
+  icon: Icon,
+  label,
+  tone,
+  value,
+}: {
+  icon: ElementType;
+  label: string;
+  tone: string;
+  value: string;
+}) {
   return (
-    <div className="rounded-lg border border-dashed border-slate-200 bg-[color:var(--soft-panel)] p-4 text-sm text-slate-500">
-      {text}
+    <div className="flex min-h-20 items-center gap-3 rounded-lg border border-white/80 bg-white/70 p-3 shadow-sm shadow-slate-200/50">
+      <span className={cn("grid size-10 shrink-0 place-items-center rounded-lg border", tone)}>
+        <Icon aria-hidden="true" className="size-4" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[11px] font-semibold uppercase text-slate-400">{label}</span>
+        <span className="mt-0.5 block truncate text-sm font-semibold text-slate-900">{value}</span>
+      </span>
+    </div>
+  );
+}
+
+function FeaturePreview({ kind, progress }: { kind: PreviewKind; progress: number }) {
+  if (kind === "calendar") {
+    return (
+      <div className="mt-4 grid grid-cols-5 gap-1">
+        {[0, 1, 2, 3, 4].map((index) => (
+          <span
+            className={cn("h-7 rounded-md", index === 2 ? "bg-sky-200" : "bg-sky-50")}
+            key={index}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (kind === "kanban") {
+    return (
+      <div className="mt-4 grid grid-cols-3 gap-1.5">
+        {[2, 3, 1].map((count, column) => (
+          <span className="space-y-1 rounded-md bg-emerald-50 p-1" key={column}>
+            {Array.from({ length: count }, (_, index) => (
+              <span className="block h-1.5 rounded-full bg-emerald-300/80" key={index} />
+            ))}
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  if (kind === "notes") {
+    return (
+      <div className="mt-4 space-y-1.5 rounded-md bg-violet-50 p-2">
+        <span className="block h-2 w-3/4 rounded bg-violet-300/80" />
+        <span className="block h-1.5 w-full rounded bg-violet-200/80" />
+        <span className="block h-1.5 w-2/3 rounded bg-violet-200/80" />
+      </div>
+    );
+  }
+
+  if (kind === "whiteboard") {
+    return (
+      <div className="relative mt-4 h-14 overflow-hidden rounded-md bg-cyan-50">
+        <span className="absolute left-3 top-3 h-5 w-14 rounded bg-white shadow-sm" />
+        <span className="absolute right-4 top-6 h-5 w-16 rounded bg-cyan-200/80" />
+        <span className="absolute bottom-3 left-16 h-px w-16 rotate-6 bg-cyan-300" />
+      </div>
+    );
+  }
+
+  if (kind === "assistant") {
+    return (
+      <div className="mt-4 flex items-center gap-2 rounded-md bg-rose-50 p-2">
+        <Sparkles aria-hidden="true" className="size-4 text-rose-500" />
+        <span className="h-2 flex-1 rounded bg-rose-200/80" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 grid grid-cols-4 gap-1.5">
+      {[0, 1, 2, 3].map((index) => (
+        <span
+          className="h-7 rounded-md bg-amber-50 ring-1 ring-amber-100"
+          key={index}
+        >
+          <span className="mx-auto mt-2 block size-2 rounded-full bg-amber-300" />
+        </span>
+      ))}
+      <span className="progress-grow col-span-4 mt-1 h-1.5 rounded-full bg-amber-300" style={{ width: `${Math.max(progress, 12)}%` }} />
+    </div>
+  );
+}
+
+function EmptyState({
+  actionHref,
+  actionLabel,
+  icon: Icon,
+  text,
+  title,
+}: {
+  actionHref: string;
+  actionLabel: string;
+  icon: ElementType;
+  text: string;
+  title: string;
+}) {
+  return (
+    <div className="rounded-lg border border-dashed border-slate-200 bg-white/70 p-4 text-sm text-slate-500">
+      <div className="flex gap-3">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-slate-950 text-white">
+          <Icon aria-hidden="true" className="size-4 text-cyan-200" />
+        </span>
+        <div className="min-w-0">
+          <p className="font-semibold text-slate-900">{title}</p>
+          <p className="mt-1 leading-5">{text}</p>
+          <Link className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-slate-950 transition hover:text-cyan-700" href={actionHref}>
+            {actionLabel}
+            <ArrowRight aria-hidden="true" className="size-3.5" />
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

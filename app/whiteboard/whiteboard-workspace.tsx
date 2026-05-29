@@ -34,7 +34,7 @@ const Excalidraw = dynamic(
     ssr: false,
     loading: () => (
       <div className="grid h-full min-h-[420px] place-items-center bg-white text-sm text-slate-500">
-        Loading canvas...
+        <div className="skeleton-shimmer rounded-lg border border-cyan-100 bg-cyan-50 px-4 py-3">Loading canvas...</div>
       </div>
     ),
   },
@@ -505,7 +505,7 @@ export function WhiteboardWorkspace({ initialWhiteboards }: { initialWhiteboards
   } satisfies Record<SaveStatus, string>;
 
   return (
-    <div className="flex h-full min-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-lg border border-white/80 bg-white/70 shadow-sm shadow-slate-200/60 lg:flex-row">
+    <div className="panel-enter flex h-full min-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-lg border border-white/80 bg-white/70 shadow-sm shadow-slate-200/60 lg:flex-row">
       <aside className="flex max-h-[42vh] min-h-0 w-full shrink-0 flex-col border-b border-cyan-100/80 bg-[color:var(--soft-panel)]/95 lg:max-h-none lg:w-[310px] lg:border-b-0 lg:border-r">
         <div className="space-y-3 p-4">
           <div className="flex items-center justify-between gap-3">
@@ -515,7 +515,7 @@ export function WhiteboardWorkspace({ initialWhiteboards }: { initialWhiteboards
             </div>
             <button
               aria-label="New Whiteboard"
-              className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-slate-950 text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:opacity-60"
+              className="pressable inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-slate-950 text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:opacity-60"
               disabled={isPending}
               onClick={addWhiteboard}
               title="New Whiteboard"
@@ -543,10 +543,10 @@ export function WhiteboardWorkspace({ initialWhiteboards }: { initialWhiteboards
               <div className="group relative" key={board.id}>
                 <button
                   aria-pressed={active}
-                  className={`flex min-h-14 w-full min-w-0 items-center gap-3 rounded-md border p-2.5 text-left transition ${
+                  className={`selectable-motion pressable flex min-h-14 w-full min-w-0 items-center gap-3 rounded-md border p-2.5 text-left transition ${
                     active
-                      ? "border-cyan-200 bg-white shadow-sm shadow-cyan-100/80"
-                      : "border-transparent hover:border-white hover:bg-white/70"
+                      ? "selected-glow border-cyan-200 bg-white shadow-sm shadow-cyan-100/80"
+                      : "border-transparent hover:-translate-y-0.5 hover:border-white hover:bg-white/70"
                   }`}
                   onClick={() => setSelectedId(board.id)}
                   type="button"
@@ -566,7 +566,7 @@ export function WhiteboardWorkspace({ initialWhiteboards }: { initialWhiteboards
                   <MoreHorizontal aria-hidden="true" className="size-4" />
                 </button>
                 {openMenuId === board.id && (
-                  <div className="absolute right-2 top-11 z-30 w-44 rounded-md border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/80">
+                  <div className="panel-enter absolute right-2 top-11 z-30 w-44 rounded-md border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/80">
                     <button className="note-menu-item" onClick={() => renameWhiteboard(board)} type="button">
                       <Pencil aria-hidden="true" className="size-4" /> Rename
                     </button>
@@ -688,8 +688,8 @@ export function WhiteboardWorkspace({ initialWhiteboards }: { initialWhiteboards
       </section>
 
       {diagramOpen && (
-        <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
-          <form className="w-full max-w-lg rounded-lg border border-white bg-white p-4 shadow-2xl shadow-slate-950/20 sm:p-5" onSubmit={generateDiagram}>
+        <div className="modal-backdrop fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
+          <form className="modal-panel w-full max-w-lg rounded-lg border border-white bg-white p-4 shadow-2xl shadow-slate-950/20 sm:p-5" onSubmit={generateDiagram}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase text-cyan-600">AI Diagram</p>
@@ -745,7 +745,7 @@ export function WhiteboardWorkspace({ initialWhiteboards }: { initialWhiteboards
       )}
 
       {feedback && (
-        <p aria-live="polite" className="fixed bottom-4 right-4 z-50 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg">
+        <p aria-live="polite" className="toast-pop fixed bottom-4 right-4 z-50 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg">
           {feedback}
         </p>
       )}

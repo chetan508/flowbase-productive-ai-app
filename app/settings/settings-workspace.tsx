@@ -125,7 +125,7 @@ export function SettingsWorkspace({ initialData }: { initialData: SettingsPageDa
 
   return (
     <>
-      <header className="flex flex-col gap-3 border-b border-border/80 pb-5 lg:flex-row lg:items-end lg:justify-between">
+      <header className="panel-enter flex flex-col gap-3 border-b border-border/80 pb-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm font-medium text-slate-500">Workspace control room</p>
           <h1 className="mt-1 text-2xl font-semibold text-slate-950">Settings</h1>
@@ -148,10 +148,10 @@ export function SettingsWorkspace({ initialData }: { initialData: SettingsPageDa
                 <button
                   aria-pressed={selected}
                   className={cx(
-                    "flex h-10 min-w-0 items-center gap-2 rounded-md border px-3 text-left text-sm font-medium transition",
+                    "selectable-motion pressable flex h-10 min-w-0 items-center gap-2 rounded-md border px-3 text-left text-sm font-medium transition",
                     selected
-                      ? "border-cyan-200 bg-cyan-50 text-slate-950"
-                      : "border-transparent text-slate-600 hover:border-slate-100 hover:bg-white",
+                      ? "selected-glow border-cyan-200 bg-cyan-50 text-slate-950"
+                      : "border-transparent text-slate-600 hover:-translate-y-0.5 hover:border-slate-100 hover:bg-white",
                   )}
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
@@ -205,7 +205,7 @@ export function SettingsWorkspace({ initialData }: { initialData: SettingsPageDa
       {feedback && (
         <p
           aria-live="polite"
-          className="fixed bottom-4 right-4 z-40 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg"
+          className="toast-pop fixed bottom-4 right-4 z-40 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg"
         >
           {feedback}
         </p>
@@ -226,7 +226,7 @@ function SettingsCard({
   title: string;
 }) {
   return (
-    <section className="min-w-0 rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm shadow-slate-200/60">
+    <section className="panel-enter ui-card p-4">
       <div className="flex min-w-0 items-start gap-3">
         <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-cyan-50 text-cyan-700">
           <Icon aria-hidden="true" className="size-5" />

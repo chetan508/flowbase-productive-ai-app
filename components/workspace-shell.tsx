@@ -125,12 +125,12 @@ function SidebarItem({
     <Link
       aria-current={active ? "page" : undefined}
       aria-label={item.label}
-      className={`group flex h-7 w-full items-center rounded-md border text-[12px] transition ${
+      className={`group selectable-motion pressable flex h-7 w-full items-center rounded-md border text-[12px] transition ${
         collapsed ? "justify-center px-0" : "justify-center px-0 sm:justify-start sm:gap-2 sm:px-2"
       } ${
         active
-          ? "border-sky-200 bg-white text-slate-950 shadow-sm shadow-sky-100/80"
-          : "border-transparent text-slate-600 hover:border-white/70 hover:bg-white/75 hover:text-slate-950"
+          ? "active-rail border-white bg-white/88 text-slate-950"
+          : "border-transparent text-slate-600 hover:-translate-y-0.5 hover:border-white/70 hover:bg-white/75 hover:text-slate-950"
       }`}
       href={item.href}
       title={item.label}
@@ -159,12 +159,12 @@ function GeneratedSidebarItem({
     <Link
       aria-current={active ? "page" : undefined}
       aria-label={app.appName}
-      className={`group flex h-7 w-full items-center rounded-md border text-[12px] transition ${
+      className={`group selectable-motion pressable flex h-7 w-full items-center rounded-md border text-[12px] transition ${
         collapsed ? "justify-center px-0" : "justify-center px-0 sm:justify-start sm:gap-2 sm:px-2"
       } ${
         active
-          ? "border-sky-200 bg-white text-slate-950 shadow-sm shadow-sky-100/80"
-          : "border-transparent text-slate-600 hover:border-white/70 hover:bg-white/75 hover:text-slate-950"
+          ? "active-rail border-white bg-white/88 text-slate-950"
+          : "border-transparent text-slate-600 hover:-translate-y-0.5 hover:border-white/70 hover:bg-white/75 hover:text-slate-950"
       }`}
       href={href}
       title={app.appName}
@@ -203,18 +203,18 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
 
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <div className="flex h-screen bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.18),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(244,114,182,0.13),_transparent_25%)]">
+      <div className="flex h-screen bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.16),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(244,114,182,0.12),_transparent_25%),linear-gradient(135deg,_rgba(255,255,255,0.35),_rgba(236,253,245,0.25))]">
         <aside
-          className={`flex h-screen min-h-0 shrink-0 flex-col border-r border-white/75 bg-[color:var(--sidebar)] px-2.5 py-3 shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-[width] duration-300 ${
+          className={`flex h-screen min-h-0 shrink-0 flex-col border-r border-white/75 bg-[color:var(--sidebar)] px-2.5 py-3 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-xl transition-[width] duration-300 ease-out ${
             collapsed ? "w-[72px]" : "w-[72px] sm:w-[218px]"
           }`}
         >
           <div
-            className={`flex h-11 items-center rounded-lg border border-cyan-100/90 bg-white/80 ${
+            className={`ui-surface-strong flex h-11 items-center rounded-lg ${
               collapsed ? "justify-center" : "gap-2 px-2"
             }`}
           >
-            <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-slate-950 text-white shadow-sm shadow-cyan-200">
+            <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-slate-950 text-white shadow-sm shadow-cyan-200 transition duration-300 hover:rotate-3">
               <Sparkles aria-hidden="true" className="size-4 text-amber-300" />
             </div>
             {!collapsed && (
@@ -228,7 +228,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
           <button
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-pressed={collapsed}
-            className={`mt-1.5 flex h-7 items-center rounded-md border border-transparent text-slate-500 transition hover:border-white hover:bg-white/80 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${
+            className={`pressable mt-1.5 flex h-7 items-center rounded-md border border-transparent text-slate-500 transition hover:border-white hover:bg-white/80 hover:text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${
               collapsed ? "justify-center" : "justify-between px-2"
             }`}
             onClick={() => setCollapsed((current) => !current)}
@@ -280,7 +280,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
 
           <footer className="space-y-1 border-t border-cyan-100/90 pt-2">
             <div
-              className={`flex min-h-11 items-center rounded-lg border border-cyan-100/90 bg-white/80 ${
+              className={`ui-surface-strong flex min-h-11 items-center rounded-lg ${
                 collapsed ? "justify-center" : "gap-2 px-2"
               }`}
             >
@@ -301,7 +301,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
               }`}
               title={collapsed ? "Workspace is synced" : undefined}
             >
-              <span className="size-2 rounded-full bg-emerald-500" />
+              <span className="pulse-dot size-2 rounded-full bg-emerald-500" />
               {!collapsed && <span className="hidden text-[11px] font-medium sm:block">Workspace synced</span>}
             </div>
           </footer>

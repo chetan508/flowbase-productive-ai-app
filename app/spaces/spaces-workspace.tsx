@@ -88,8 +88,8 @@ function ModalShell({
   title: string;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
-      <div className="w-full max-w-lg rounded-lg border border-white bg-white p-4 shadow-2xl shadow-slate-950/20 sm:p-5">
+    <div className="modal-backdrop fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
+      <div className="modal-panel w-full max-w-lg rounded-lg border border-white bg-white p-4 shadow-2xl shadow-slate-950/20 sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <h2 className="text-lg font-semibold text-slate-950">{title}</h2>
           <button
@@ -116,7 +116,7 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
         </div>
         <h2 className="mt-3 text-base font-semibold text-slate-950">No spaces found</h2>
         <button
-          className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-medium text-white transition hover:bg-slate-800"
+          className="pressable mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-medium text-white transition hover:bg-slate-800"
           onClick={onCreate}
           type="button"
         >
@@ -398,7 +398,7 @@ export function SpacesWorkspace({ initialSpaces }: { initialSpaces: SpaceRecord[
   if (selectedSpace) {
     return (
       <div className="min-h-[calc(100vh-2rem)] space-y-4">
-        <header className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm shadow-slate-200/60">
+        <header className="panel-enter ui-card p-4">
           <div className="flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
             <button className="font-medium text-violet-600 transition hover:text-violet-700" onClick={backToSpaces} type="button">
               All Spaces
@@ -559,14 +559,14 @@ export function SpacesWorkspace({ initialSpaces }: { initialSpaces: SpaceRecord[
           </ModalShell>
         )}
 
-        {feedback && <p className="fixed bottom-4 right-4 z-50 rounded-lg bg-slate-950 px-3 py-2 text-sm text-white shadow-lg">{feedback}</p>}
+        {feedback && <p className="toast-pop fixed bottom-4 right-4 z-50 rounded-lg bg-slate-950 px-3 py-2 text-sm text-white shadow-lg">{feedback}</p>}
       </div>
     );
   }
 
   return (
     <div className="min-h-[calc(100vh-2rem)] space-y-4">
-      <header className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm shadow-slate-200/60">
+      <header className="panel-enter ui-card p-4">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-medium text-violet-600">{spaces.length} Spaces</p>
@@ -577,7 +577,7 @@ export function SpacesWorkspace({ initialSpaces }: { initialSpaces: SpaceRecord[
               <Search aria-hidden="true" className="size-4 shrink-0" />
               <input className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400" onChange={(event) => setSearch(event.target.value)} placeholder="Search spaces or pages." value={search} />
             </label>
-            <button className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-medium text-white transition hover:bg-slate-800" disabled={isPending} onClick={() => setSpaceModalOpen(true)} type="button">
+            <button className="pressable inline-flex h-10 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-medium text-white transition hover:bg-slate-800" disabled={isPending} onClick={() => setSpaceModalOpen(true)} type="button">
               <Plus aria-hidden="true" className="size-4" />
               New Space
             </button>
@@ -586,15 +586,15 @@ export function SpacesWorkspace({ initialSpaces }: { initialSpaces: SpaceRecord[
         <div className="mt-4 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-wrap gap-2">
             {tabs.map((tab) => (
-              <button className={`h-9 rounded-md px-3 text-sm font-medium transition ${activeTab === tab ? "bg-violet-100 text-violet-700" : "bg-white text-slate-500 hover:text-slate-900"}`} key={tab} onClick={() => setActiveTab(tab)} type="button">
+              <button className={`pressable h-9 rounded-md px-3 text-sm font-medium transition ${activeTab === tab ? "selected-glow bg-violet-100 text-violet-700" : "bg-white text-slate-500 hover:text-slate-900"}`} key={tab} onClick={() => setActiveTab(tab)} type="button">
                 {tab}
               </button>
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex h-9 rounded-md border border-slate-200 bg-white p-1">
-              <button aria-label="Grid view" className={`grid size-7 place-items-center rounded ${viewMode === "grid" ? "bg-violet-100 text-violet-700" : "text-slate-500"}`} onClick={() => setViewMode("grid")} type="button"><Grid2X2 className="size-4" /></button>
-              <button aria-label="List view" className={`grid size-7 place-items-center rounded ${viewMode === "list" ? "bg-violet-100 text-violet-700" : "text-slate-500"}`} onClick={() => setViewMode("list")} type="button"><List className="size-4" /></button>
+              <button aria-label="Grid view" className={`pressable grid size-7 place-items-center rounded ${viewMode === "grid" ? "bg-violet-100 text-violet-700" : "text-slate-500"}`} onClick={() => setViewMode("grid")} type="button"><Grid2X2 className="size-4" /></button>
+              <button aria-label="List view" className={`pressable grid size-7 place-items-center rounded ${viewMode === "list" ? "bg-violet-100 text-violet-700" : "text-slate-500"}`} onClick={() => setViewMode("list")} type="button"><List className="size-4" /></button>
             </div>
             <select className="h-9 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none focus:border-violet-400" onChange={(event) => setSortMode(event.target.value as SortMode)} value={sortMode}>
               {sortModes.map((mode) => <option key={mode}>{mode}</option>)}
@@ -608,7 +608,7 @@ export function SpacesWorkspace({ initialSpaces }: { initialSpaces: SpaceRecord[
       ) : (
         <section className={viewMode === "grid" ? "grid gap-4 sm:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
           {visibleSpaces.map((space) => (
-            <article className={`group relative rounded-lg border border-white/80 bg-white/88 p-4 shadow-sm shadow-slate-200/60 transition hover:-translate-y-0.5 hover:border-violet-100 hover:shadow-md ${viewMode === "list" ? "flex flex-col gap-3 md:flex-row md:items-center md:justify-between" : ""}`} key={space.id}>
+            <article className={`group relative ui-card ui-card-hover p-4 ${viewMode === "list" ? "flex flex-col gap-3 md:flex-row md:items-center md:justify-between" : ""}`} key={space.id}>
               <button className="absolute right-12 top-4 grid size-8 place-items-center rounded-md text-slate-400 transition hover:bg-amber-50 hover:text-amber-500" onClick={() => toggleSpaceFavorite(space)} type="button" aria-label={space.favorite ? "Unfavorite space" : "Favorite space"}>
                 <Star aria-hidden="true" className={`size-4 ${space.favorite ? "fill-amber-300 text-amber-400" : ""}`} />
               </button>
@@ -672,7 +672,7 @@ export function SpacesWorkspace({ initialSpaces }: { initialSpaces: SpaceRecord[
         </ModalShell>
       )}
 
-      {feedback && <p className="fixed bottom-4 right-4 z-50 rounded-lg bg-slate-950 px-3 py-2 text-sm text-white shadow-lg">{feedback}</p>}
+      {feedback && <p className="toast-pop fixed bottom-4 right-4 z-50 rounded-lg bg-slate-950 px-3 py-2 text-sm text-white shadow-lg">{feedback}</p>}
     </div>
   );
 }
