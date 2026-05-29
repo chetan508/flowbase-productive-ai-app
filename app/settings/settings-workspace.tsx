@@ -16,6 +16,7 @@ import {
   Home,
   KeyRound,
   Lightbulb,
+  LogOut,
   NotebookPen,
   Palette,
   Pencil,
@@ -250,6 +251,7 @@ function ProfileSection({
   onSave: (input: Parameters<typeof updateSettingsAction>[0], message?: string) => void;
   settings: SettingsRecord;
 }) {
+  const { signOut } = useClerk();
   const initials = settings.displayName
     .split(/\s+/)
     .map((part) => part[0])
@@ -306,6 +308,15 @@ function ProfileSection({
               <KeyRound aria-hidden="true" className="size-4" />
               Account security
             </a>
+            <button
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-rose-100 bg-white px-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={disabled}
+              onClick={() => void signOut({ redirectUrl: "/sign-in" })}
+              type="button"
+            >
+              <LogOut aria-hidden="true" className="size-4" />
+              Log out
+            </button>
           </div>
         </div>
       </form>
@@ -325,9 +336,12 @@ function SubscriptionSection({
   const clerk = useClerk();
   const [status, setStatus] = useState("Checking subscription");
   const [renewal, setRenewal] = useState("Not available yet");
-  const [billingReady, setBillingReady] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const proPlanId = process.env.NEXT_PUBLIC_CLERK_PRO_PLAN_ID;
+  const billingReady = Boolean(
+    (clerk as unknown as { billing?: { startCheckout?: unknown } }).billing?.startCheckout,
+  );
 
   useEffect(() => {
     let active = true;
@@ -348,7 +362,6 @@ function SubscriptionSection({
         const itemStatus = String(item?.status ?? (subscription as { status?: string })?.status ?? "active");
 
         if (active) {
-          setBillingReady(true);
           setStatus(itemStatus);
           if (planName.includes("pro")) onPlanTierChange("pro");
           if (item?.periodEnd) setRenewal(new Date(String(item.periodEnd)).toLocaleDateString());
@@ -366,10 +379,17 @@ function SubscriptionSection({
 
   async function startProCheckout() {
     if (!proPlanId) return;
+    setCheckoutError(null);
     setIsLoading(true);
     try {
       const billing = (clerk as unknown as { billing?: Record<string, unknown> }).billing;
-      const checkout = await (billing?.startCheckout as ((params: unknown) => Promise<unknown>) | undefined)?.({
+      const startCheckout = billing?.startCheckout as ((params: unknown) => Promise<unknown>) | undefined;
+
+      if (!startCheckout) {
+        throw new Error("Checkout is not available. Enable Clerk Billing and confirm the Pro plan ID.");
+      }
+
+      const checkout = await startCheckout({
         planId: proPlanId,
         planPeriod: "month",
       });
@@ -378,7 +398,15 @@ function SubscriptionSection({
         await target.redirect();
       } else if (typeof target?.redirectUrl === "string") {
         window.location.href = target.redirectUrl;
+      } else {
+        throw new Error("Checkout did not return a redirect. Please confirm the Pro plan configuration in Clerk.");
       }
+    } catch (error) {
+      setCheckoutError(
+        error instanceof Error
+          ? error.message
+          : "Checkout is not available. Enable Clerk Billing and confirm the Pro plan ID.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -428,6 +456,7 @@ function SubscriptionSection({
             Add NEXT_PUBLIC_CLERK_PRO_PLAN_ID to enable checkout.
           </p>
         )}
+        {checkoutError && <p className="self-center text-sm text-rose-600">{checkoutError}</p>}
       </div>
     </SettingsCard>
   );
