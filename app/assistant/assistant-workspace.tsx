@@ -154,7 +154,7 @@ export function AssistantWorkspace() {
   useEffect(resizeTextarea, [prompt]);
 
   return (
-    <div className="flex h-full min-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-lg border border-white/80 bg-white/75 shadow-sm shadow-slate-200/60">
+    <div className="panel-enter flex h-full min-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-lg border border-white/80 bg-white/75 shadow-sm shadow-slate-200/60">
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-cyan-100/80 bg-white/80 px-4 py-3 sm:px-5">
         <div className="flex min-w-0 items-center gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-slate-950 text-white shadow-sm shadow-cyan-200">
@@ -188,7 +188,7 @@ export function AssistantWorkspace() {
                   const Icon = suggestion.icon;
                   return (
                     <button
-                      className="group flex min-h-20 items-start gap-3 rounded-lg border border-cyan-100 bg-white/85 p-3 text-left shadow-sm shadow-slate-200/50 transition hover:border-cyan-200 hover:bg-cyan-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+                      className="pressable group flex min-h-20 items-start gap-3 rounded-lg border border-cyan-100 bg-white/85 p-3 text-left shadow-sm shadow-slate-200/50 transition hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-cyan-50/80 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
                       key={suggestion.label}
                       disabled={isResponding}
                       onClick={() => void submitMessage(suggestion.label)}
@@ -207,7 +207,7 @@ export function AssistantWorkspace() {
             <div className="space-y-4">
               {messages.map((message) => (
                 <article
-                  className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`panel-enter flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                   key={message.id}
                 >
                   {message.role === "assistant" && (
@@ -225,7 +225,7 @@ export function AssistantWorkspace() {
                     {message.content}
                     {message.pendingAction && (
                       <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-2 text-xs font-medium text-amber-800">
-                        Reply "yes" to confirm or "cancel" to skip.
+                        Reply &quot;yes&quot; to confirm or &quot;cancel&quot; to skip.
                       </div>
                     )}
                   </div>
@@ -274,7 +274,7 @@ export function AssistantWorkspace() {
           <form className="flex items-end gap-2 rounded-lg border border-cyan-100 bg-white p-2 shadow-sm shadow-slate-200/70" onSubmit={onSubmit}>
             <button
               aria-label={speech.isRecording ? "Stop voice input" : "Start voice input"}
-              className={`grid size-10 shrink-0 place-items-center rounded-md transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${
+              className={`pressable grid size-10 shrink-0 place-items-center rounded-md transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${
                 speech.isRecording
                   ? "bg-rose-50 text-rose-700 hover:bg-rose-100"
                   : "bg-cyan-50 text-cyan-800 hover:bg-cyan-100 disabled:opacity-60"
@@ -309,7 +309,7 @@ export function AssistantWorkspace() {
             />
             <button
               aria-label="Send message"
-              className="grid size-10 shrink-0 place-items-center rounded-md bg-slate-950 text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="pressable grid size-10 shrink-0 place-items-center rounded-md bg-slate-950 text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={isResponding || recordingBusy || !prompt.trim()}
               type="submit"
             >

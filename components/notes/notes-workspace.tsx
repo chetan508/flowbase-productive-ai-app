@@ -162,7 +162,7 @@ export function NotesWorkspace({ initialNotes }: { initialNotes: NotePage[] }) {
   }
 
   return (
-    <div className="flex h-full min-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-lg border border-white/80 bg-white/70 shadow-sm shadow-slate-200/60 lg:flex-row">
+    <div className="panel-enter flex h-full min-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-lg border border-white/80 bg-white/70 shadow-sm shadow-slate-200/60 lg:flex-row">
       <aside className="flex max-h-[44vh] min-h-0 w-full shrink-0 flex-col border-b border-cyan-100/80 bg-[color:var(--soft-panel)]/90 lg:max-h-none lg:w-[326px] lg:border-b-0 lg:border-r">
         <div className="space-y-3 p-4">
           <div className="flex items-center justify-between gap-3">
@@ -172,7 +172,7 @@ export function NotesWorkspace({ initialNotes }: { initialNotes: NotePage[] }) {
             </div>
             <button
               aria-label="New Note"
-              className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-slate-950 text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+              className="pressable inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-slate-950 text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
               onClick={addNote}
               disabled={isPending}
               title="New Note"
@@ -199,10 +199,10 @@ export function NotesWorkspace({ initialNotes }: { initialNotes: NotePage[] }) {
             return (
               <div className="group relative" key={note.id}>
                 <button
-                  className={`group flex w-full min-w-0 items-center gap-3 rounded-md border p-2.5 text-left transition ${
+                  className={`selectable-motion pressable group flex w-full min-w-0 items-center gap-3 rounded-md border p-2.5 text-left transition ${
                     active
-                      ? "border-cyan-200 bg-white shadow-sm shadow-cyan-100/80"
-                      : "border-transparent hover:border-white hover:bg-white/70"
+                      ? "selected-glow border-cyan-200 bg-white shadow-sm shadow-cyan-100/80"
+                      : "border-transparent hover:-translate-y-0.5 hover:border-white hover:bg-white/70"
                   }`}
                   onClick={() => setSelectedId(note.id)}
                   type="button"
@@ -228,7 +228,7 @@ export function NotesWorkspace({ initialNotes }: { initialNotes: NotePage[] }) {
                   <MoreHorizontal aria-hidden="true" className="size-4" />
                 </button>
                 {openMenuId === note.id && (
-                  <div className="absolute right-2 top-10 z-20 w-52 rounded-md border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/80">
+                  <div className="panel-enter absolute right-2 top-10 z-20 w-52 rounded-md border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/80">
                     <button className="note-menu-item" onClick={() => renameNote(note)} type="button">
                       <NotebookPen aria-hidden="true" className="size-4" /> Rename
                     </button>
@@ -296,7 +296,7 @@ export function NotesWorkspace({ initialNotes }: { initialNotes: NotePage[] }) {
       {feedback && (
         <p
           aria-live="polite"
-          className="fixed bottom-4 right-4 z-20 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg"
+          className="toast-pop fixed bottom-4 right-4 z-20 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg"
         >
           {feedback}
         </p>

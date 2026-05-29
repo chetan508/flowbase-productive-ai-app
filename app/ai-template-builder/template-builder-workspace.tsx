@@ -92,8 +92,8 @@ export function TemplateBuilderWorkspace({ initialApps }: { initialApps: Generat
   }
 
   return (
-    <div className="min-h-[calc(100vh-2rem)] space-y-4">
-      <header className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm shadow-slate-200/60">
+    <div className="panel-enter min-h-[calc(100vh-2rem)] space-y-4">
+      <header className="ui-card p-4">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="max-w-2xl">
             <p className="text-sm font-medium text-violet-600">AI Template Builder</p>
@@ -129,7 +129,7 @@ export function TemplateBuilderWorkspace({ initialApps }: { initialApps: Generat
           </label>
           <div className="flex items-end">
             <button
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60 lg:w-auto"
+              className="pressable inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-slate-950 px-4 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60 lg:w-auto"
               disabled={isPending}
               type="submit"
             >
@@ -142,7 +142,7 @@ export function TemplateBuilderWorkspace({ initialApps }: { initialApps: Generat
         <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
           {["Habit Tracker", "Budget Tracker", "Meal Planner", "Study Planner"].map((idea) => (
             <button
-              className="rounded-md border border-slate-200 bg-white px-2.5 py-1 transition hover:border-violet-200 hover:text-slate-800"
+              className="pressable rounded-md border border-slate-200 bg-white px-2.5 py-1 transition hover:border-violet-200 hover:text-slate-800"
               disabled={isPending}
               key={idea}
               onClick={() => setPrompt(`Create a ${idea} with stats, forms, lists, progress, and sample data.`)}
@@ -199,7 +199,7 @@ export function TemplateBuilderWorkspace({ initialApps }: { initialApps: Generat
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {apps.map((app) => (
-              <article className="rounded-lg border border-white/80 bg-white/88 p-4 shadow-sm shadow-slate-200/60 transition hover:-translate-y-0.5 hover:border-violet-100 hover:shadow-md" key={app.id}>
+              <article className="ui-card ui-card-hover p-4" key={app.id}>
                 <button className="flex w-full min-w-0 items-start gap-3 text-left" onClick={() => setSelectedApp(app)} type="button">
                   <span className="grid size-11 shrink-0 place-items-center rounded-lg text-white shadow-sm" style={{ backgroundColor: app.color }}>
                     <GeneratedAppIcon className="size-5" name={app.icon} />
@@ -218,12 +218,12 @@ export function TemplateBuilderWorkspace({ initialApps }: { initialApps: Generat
                   {app.addedToSidebar && <span className="rounded-md bg-emerald-50 px-2 py-1 font-medium text-emerald-700">Sidebar</span>}
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Link className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50" href={`/ai-template-builder/${app.id}`}>
+                  <Link className="pressable inline-flex h-9 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50" href={`/ai-template-builder/${app.id}`}>
                     <Eye aria-hidden="true" className="size-4" />
                     Preview
                   </Link>
                   <button
-                    className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60"
+                    className="pressable inline-flex h-9 items-center justify-center gap-2 rounded-md bg-slate-950 px-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-60"
                     disabled={isPending}
                     onClick={() => toggleSidebar(app)}
                     type="button"
@@ -233,7 +233,7 @@ export function TemplateBuilderWorkspace({ initialApps }: { initialApps: Generat
                   </button>
                   <button
                     aria-label={`Delete ${app.appName}`}
-                    className="grid size-9 place-items-center rounded-md border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100 disabled:opacity-60"
+                    className="pressable grid size-9 place-items-center rounded-md border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100 disabled:opacity-60"
                     disabled={isPending}
                     onClick={() => deleteApp(app)}
                     type="button"
@@ -248,7 +248,7 @@ export function TemplateBuilderWorkspace({ initialApps }: { initialApps: Generat
       </section>
 
       {feedback && (
-        <p aria-live="polite" className="fixed bottom-4 right-4 z-50 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg">
+        <p aria-live="polite" className="toast-pop fixed bottom-4 right-4 z-50 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg">
           {feedback}
         </p>
       )}

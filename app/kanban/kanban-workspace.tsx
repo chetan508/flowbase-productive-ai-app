@@ -323,7 +323,7 @@ export function KanbanWorkspace({ initialBoards }: { initialBoards: KanbanBoardR
             </span>
           </div>
           <button
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+            className="pressable inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-slate-950 px-3 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
             onClick={() => setBoardDialog({ name: "", color: boardColors[0] })}
             type="button"
           >
@@ -359,10 +359,10 @@ export function KanbanWorkspace({ initialBoards }: { initialBoards: KanbanBoardR
               return (
                 <button
                   aria-pressed={active}
-                  className={`flex min-h-12 w-full min-w-0 items-center gap-3 rounded-md border px-3 text-left transition ${
+                  className={`selectable-motion pressable flex min-h-12 w-full min-w-0 items-center gap-3 rounded-md border px-3 text-left transition ${
                     active
-                      ? "border-sky-200 bg-white text-slate-950 shadow-sm shadow-sky-100/80"
-                      : "border-slate-100 bg-[color:var(--soft-panel)] text-slate-700 hover:border-cyan-100 hover:bg-white"
+                      ? "selected-glow border-sky-200 bg-white text-slate-950 shadow-sm shadow-sky-100/80"
+                      : "border-slate-100 bg-[color:var(--soft-panel)] text-slate-700 hover:-translate-y-0.5 hover:border-cyan-100 hover:bg-white"
                   }`}
                   key={board.id}
                   onClick={() => setSelectedBoardId(board.id)}
@@ -452,9 +452,9 @@ export function KanbanWorkspace({ initialBoards }: { initialBoards: KanbanBoardR
       </div>
 
       {boardDialog && (
-        <div className="fixed inset-0 z-30 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
+        <div className="modal-backdrop fixed inset-0 z-30 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
           <form
-            className="w-full max-w-md rounded-lg border border-white bg-white p-4 shadow-2xl shadow-slate-950/20 sm:p-5"
+            className="modal-panel w-full max-w-md rounded-lg border border-white bg-white p-4 shadow-2xl shadow-slate-950/20 sm:p-5"
             onSubmit={createBoard}
           >
             <DialogHeader
@@ -529,7 +529,7 @@ export function KanbanWorkspace({ initialBoards }: { initialBoards: KanbanBoardR
       {feedback && (
         <p
           aria-live="polite"
-          className="fixed bottom-4 right-4 z-40 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg"
+          className="toast-pop fixed bottom-4 right-4 z-40 max-w-sm rounded-lg border border-white bg-slate-950 px-3 py-2 text-sm text-white shadow-lg"
         >
           {feedback}
         </p>
@@ -643,8 +643,8 @@ function BoardRoomContent({
         <div className="grid h-full min-w-[760px] auto-cols-[minmax(240px,1fr)] grid-flow-col gap-3 lg:min-w-0 lg:grid-flow-row lg:grid-cols-[repeat(auto-fit,minmax(230px,1fr))]">
           {board.columns.map((column) => (
             <article
-              className={`flex min-h-[420px] min-w-0 flex-col rounded-lg border p-3 transition lg:min-h-0 ${
-                dropColumnId === column.id ? "border-cyan-300 bg-cyan-50" : "border-slate-100 bg-[color:var(--soft-panel)]"
+              className={`flex min-h-[420px] min-w-0 flex-col rounded-lg border p-3 transition duration-200 lg:min-h-0 ${
+                dropColumnId === column.id ? "scale-[1.01] border-cyan-300 bg-cyan-50 shadow-lg shadow-cyan-100/70" : "border-slate-100 bg-[color:var(--soft-panel)]"
               }`}
               key={column.id}
               onDragEnter={() => onSetDropColumnId(column.id)}
@@ -697,7 +697,7 @@ function BoardRoomContent({
               </div>
 
               <button
-                className="mt-3 inline-flex h-9 items-center justify-center gap-2 rounded-md border border-dashed border-cyan-200 bg-white/70 text-sm font-medium text-cyan-800 transition hover:bg-white"
+                className="pressable mt-3 inline-flex h-9 items-center justify-center gap-2 rounded-md border border-dashed border-cyan-200 bg-white/70 text-sm font-medium text-cyan-800 transition hover:bg-white"
                 onClick={() => onOpenTask({ boardId: board.id, columnId: column.id, task: null })}
                 type="button"
               >
@@ -805,8 +805,8 @@ function CollaborationPanel({
   }
 
   return (
-    <div className="fixed inset-0 z-30 bg-slate-950/35">
-      <aside className="ml-auto flex h-full w-full max-w-md flex-col overflow-hidden border-l border-white bg-white shadow-2xl shadow-slate-950/20">
+    <div className="modal-backdrop fixed inset-0 z-30 bg-slate-950/35">
+      <aside className="panel-enter ml-auto flex h-full w-full max-w-md flex-col overflow-hidden border-l border-white bg-white shadow-2xl shadow-slate-950/20">
         <div className="border-b border-slate-100 p-4">
           <DialogHeader eyebrow="Settings" onClose={onClose} title="Collaboration" />
           <div className="mt-3 flex items-center gap-2 rounded-md border border-cyan-100 bg-cyan-50 px-3 py-2 text-sm text-cyan-900">
@@ -945,8 +945,8 @@ function TaskDialog({
   }, [task, updatePresence]);
 
   return (
-    <div className="fixed inset-0 z-30 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
-      <div className="grid max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-lg border border-white bg-white shadow-2xl shadow-slate-950/20 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="modal-backdrop fixed inset-0 z-30 grid place-items-center overflow-y-auto bg-slate-950/35 p-4">
+      <div className="modal-panel grid max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-lg border border-white bg-white shadow-2xl shadow-slate-950/20 lg:grid-cols-[minmax(0,1fr)_360px]">
         <form className="min-h-0 overflow-y-auto p-4 sm:p-5" onSubmit={onSubmit}>
           <DialogHeader
             eyebrow={task ? "Task details" : columnName}
@@ -1154,7 +1154,7 @@ function TaskCard({
 }) {
   return (
     <article
-      className="group rounded-lg border border-white bg-white p-3 shadow-sm shadow-slate-200/60 transition hover:-translate-y-0.5 hover:border-cyan-100 hover:shadow-md hover:shadow-slate-200/80"
+      className="pressable group rounded-lg border border-white bg-white p-3 shadow-sm shadow-slate-200/60 transition hover:-translate-y-0.5 hover:border-cyan-100 hover:shadow-md hover:shadow-slate-200/80 active:cursor-grabbing"
       draggable
       onDragStart={(event) => {
         event.dataTransfer.setData("text/kanban-task-id", String(task.id));
